@@ -1,0 +1,9 @@
+- name: 重启主机
+  become: yes
+  command: /sbin/shutdown -r +1
+  async: 0
+  poll: 0
+  ignore_errors: true
+
+- name: 等待主机运行
+  local_action: wait_for host={{ ansible_ssh_host }} state=started

@@ -1,0 +1,11 @@
+- hosts:
+  - kube-cluster
+  roles:
+  - prepare
+
+- hosts:
+  - dockerhub
+  tasks:
+  - include_tasks: roles/prepare/tasks/hostname.yml
+    tags: [hostname]
+  tags: dockerhub

@@ -1,0 +1,5 @@
+- name: kubeadm join
+  become: yes
+  shell: kubeadm join --token 1d49cd.5cd70c6a9aa9c3fd 192.168.0.182:6443 --discovery-token-ca-cert-hash sha256:3edb5bbe345b76d002ec7108357a8d5b041bfb0b365784261cfd7d6b30e880b5
+
+- import_tasks: roles/kubeadm/tasks/kubelet-status.yml

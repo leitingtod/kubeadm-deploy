@@ -1,0 +1,23 @@
+[ansible-ops]
+localhost ansible_connection=local ansible_ssh_user=anyuan ansible_ssh_pass=123 ansible_sudo_pass=123
+
+
+[dockerhub]
+#192.168.0.181 NODE_NAME=dockerhub NODE_IP="192.168.0.181" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
+
+
+[kube-master]
+192.168.0.182 NODE_NAME=master1.az1 NODE_IP="192.168.0.182" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
+#192.168.0.185 NODE_NAME=master1.az2 NODE_IP="192.168.0.185" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
+
+
+[kube-node]
+192.168.0.183 NODE_NAME=node1.az1 NODE_IP="192.168.0.183" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
+192.168.0.184 NODE_NAME=node2.az1 NODE_IP="192.168.0.184" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
+#192.168.0.186 NODE_NAME=node1.az2 NODE_IP="192.168.0.186" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
+#192.168.0.187 NODE_NAME=node2.az2 NODE_IP="192.168.0.187" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
+
+
+[kube-cluster:children]
+kube-node
+kube-master

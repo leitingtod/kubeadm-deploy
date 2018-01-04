@@ -1,0 +1,50 @@
+[user]
+    name = liuyazhou
+    email = leitingtod@126.com
+[color]
+    ui = true
+    branch = auto
+    status = auto
+    diff = auto
+    interactive = auto
+[gui]
+    spellingdictionary = en
+    encoding = utf-8
+    fontui = -family 文泉驿等宽正黑 -size 12 -weight normal -slant roman -underline 0 -overstrike 0
+    fontdiff = -family 文泉驿等宽正黑 -size 12 -weight normal -slant roman -underline 0 -overstrike 0
+
+[diff]
+    tool = bc
+[difftool]
+    prompt = false
+    external = bc
+[difftool "bc"]
+    trustExitCode = true
+    path =
+[merge]
+    tool = bc
+[mergetool]
+    prompt = false
+    keepBackup = false
+
+[mergetool "bc"]
+    trustExitCode = true
+    path =
+[core]
+    ui = true
+    quotepath = false
+    autocrlf = input
+    safecrlf = warn
+    filemode = false
+[i18n]
+    commitencoding = utf-8
+    logoutputencoding = utf-8
+[alias]
+    ci = commit
+    co = checkout
+    df = diff
+    dt = difftool
+    mt = mergetool
+    br = branch
+    st = status
+    sh = stash

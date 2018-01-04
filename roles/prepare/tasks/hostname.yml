@@ -1,0 +1,25 @@
+- name: 更改 hostname
+  become: yes
+  hostname:
+    name: "{{ NODE_NAME }}"
+  tags: hostname
+
+- name: 添加 hostname to /etc/hosts
+  become: yes
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^127\.0\.0\.1[ \t]+localhost'
+    line: '127.0.0.1 localhost {{ NODE_NAME }}'
+    state: present
+  tags: hostname
+
+- name: 查看 hostname
+  become: yes
+  shell: hostname
+  register: shell_result
+  tags: check-status
+
+- name: 查看 hostname
+  debug:
+    var: shell_result.stdout_lines
+  tags: check-status
