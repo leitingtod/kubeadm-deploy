@@ -1,0 +1,95 @@
+- hosts:
+  - kube-cluster
+  - ansible-ops
+  - dockerhub
+  tasks:
+  - name: 关闭服务
+    become: yes
+    ignore_errors: True
+    shell: systemctl stop {{ item }} && systemctl disable {{ item }}
+    with_items:
+    - "etcd.service"
+    - "flanneld.service"
+    - "kube-apiserver.service"
+    - "kube-controller-manager.service"
+    - "kube-scheduler.service"
+    - "kubelet.service"
+    - "kube-proxy.service"
+
+    tags: systemd
+
+  - name: 卸载 kubernetes bins and files
+    become: yes
+    ignore_errors: True
+    file: name={{ item }} state=absent
+    with_items:
+    # prepare
+    - "/etc/kubernetes"
+    - "/root/.kube"
+    - "/etc/docker"
+
+    # etcd
+    - "/etc/etcd"
+    - "/usr/local/bin/etcd"
+    - "/usr/local/bin/etcdctl"
+    - "/var/lib/etcd"
+    - "/etc/systemd/system/etcd.service"
+
+    # kubectl
+    - "/usr/local/bin/kubectl"
+    - "/home/anyuan/.kube"
+
+    # docker
+    - "/usr/local/bin/docker-containerd"
+    - "/usr/local/bin/docker-containerd-shim"
+    - "/usr/local/bin/docker-init"
+    - "/usr/local/bin/docker-runc"
+    - "/usr/local/bin/docker"
+    - "/usr/local/bin/docker-containerd-ctr"
+    - "/usr/local/bin/dockerd"
+    - "/usr/local/bin/docker-proxy"
+
+    # flanneld
+    - "/usr/local/bin/flanneld"
+    - "/usr/local/bin/mk-docker-opts.sh"
+    - "/etc/flanneld"
+    - "/etc/systemd/system/flanneld.service"
+
+    # kube-master
+    - "/usr/local/bin/kube-apiserver"
+    - "/usr/local/bin/kube-controller-manager"
+    - "/usr/local/bin/kube-scheduler"
+    - "/usr/local/bin/kube-proxy"
+    - "/usr/local/bin/kubelet"
+    - "/etc/systemd/system/kube-apiserver.service"
+    - "/etc/systemd/system/kube-controller-manager.service"
+    - "/etc/systemd/system/kube-scheduler.service"
+
+    # kube-node
+    - "/usr/local/bin/kubelet"
+    - "/usr/local/bin/kube-proxy"
+    - "/var/lib/kube-proxy"
+    - "/etc/systemd/system/kubelet.service"
+    - "/etc/systemd/system/kube-proxy.service"
+- hosts:
+  - kube-cluster
+  - dockerhub
+  tasks:
+  - name: 关闭服务
+    become: yes
+    ignore_errors: True
+    shell: systemctl stop {{ item }} && systemctl disable {{ item }}
+    with_items:
+    - "docker.service"
+    tags: docker-clean
+
+  - name: 卸载 kubernetes bins and files
+    become: yes
+    ignore_errors: True
+    file: name={{ item }} state=absent
+    with_items:
+    - "/etc/systemd/system/docker.service"
+    - "/etc/systemd/system/docker.service.requires"
+    - "/etc/systemd/system/docker.service.requires/flanneld.service"
+    - "/etc/systemd/system/multi-user.target.wants/docker.service"
+    tags: docker-clean

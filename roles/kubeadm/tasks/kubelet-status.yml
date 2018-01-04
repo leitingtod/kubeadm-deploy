@@ -1,0 +1,11 @@
+- name: 查看 kubelet 状态
+  become: yes
+  ignore_errors: True
+  shell: systemctl status kubelet
+  register: shell_result
+  tags: check-status
+
+- name: 查看 kubelet 状态
+  debug:
+    var: shell_result.stdout_lines
+  tags: check-status

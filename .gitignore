@@ -1,0 +1,8 @@
+bin/
+manifests/
+*.retry
+*#
+\#*
+*~
+~*
+.idea/

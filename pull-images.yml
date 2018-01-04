@@ -1,0 +1,8 @@
+- hosts:
+  - kube-cluster
+  tasks:
+  - name: pull images
+    become: yes
+    shell: docker pull {{ item }}
+    with_items:
+    - quay.io/coreos/flannel:v0.9.1-amd64

@@ -1,0 +1,33 @@
+- name: 安装 Docker
+  become: yes
+  ignore_errors: True
+  apt:
+    name: docker-ce
+    state: present
+    allow_unauthenticated: yes
+
+- name: prepare /etc/docker
+  become: yes
+  file: name={{ item }} state=directory
+  with_items:
+  - /etc/docker
+
+- name: 配置 docker 镜像源
+  become: yes
+  copy: src=daemon.json dest=/etc/docker/daemon.json mode=0644
+
+- name: 重启 docker
+  become: yes
+  shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker
+
+- name: 查看 docker 状态
+  become: yes
+  ignore_errors: True
+  shell: systemctl status docker
+  register: shell_result
+  tags: check-status
+
+- name: 查看 docker 状态
+  debug:
+    var: shell_result.stdout_lines
+  tags: check-status

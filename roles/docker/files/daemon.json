@@ -1,0 +1,5 @@
+{
+  "registry-mirrors": ["https://lezoqg63.mirror.aliyuncs.com", "https://registry.docker-cn.com"],
+  "insecure-registries":["http://dockerhub.aysaas.com"],
+  "max-concurrent-downloads": 6
+}
