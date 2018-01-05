@@ -11,8 +11,7 @@ alias dk='sudo docker'
 alias dki='sudo docker images'
 alias dks='sudo docker ps'
 alias dksa='sudo docker ps -a'
-alias dkl='sudo docker login 192.168.0.247:80 -u'
-
+alias dkl='sudo docker login dockerhub.aysaas.com -u'
 
 # 杀死所有正在运行的容器.
 alias dkillall='sudo docker kill $(sudo docker ps -a -q)'
