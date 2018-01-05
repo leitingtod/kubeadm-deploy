@@ -26,6 +26,7 @@
 - name: 更换 APT 源为 UST
   become: yes
   copy: src=sources.list-16.04 dest=/etc/apt/sources.list mode=0644
+  tags: config
 
 - name: 添加 USTC Public Key
   become: yes
@@ -38,6 +39,7 @@
 - name: 设置别名
   become: yes
   copy: src=alias.rc dest=/etc/profile.d/alias.sh mode=0644
+  tags: config
 
 - name: 设置 gitconfig
   become: yes
