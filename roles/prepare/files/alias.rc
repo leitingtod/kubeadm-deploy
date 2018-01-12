@@ -29,6 +29,8 @@ alias kl='kubectl'
 alias kg='kubectl get'
 alias kgp='kubectl get profiles'
 alias kgn='kubectl get no --show-labels'
+alias kga='kubectl get --all-namespaces'
+alias kgk='kubectl get -n kube-system'
 
 alias kw='kubectl get -o wide'
 alias ks='kubectl describe'
