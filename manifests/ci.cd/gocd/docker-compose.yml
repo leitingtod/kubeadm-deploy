@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  drone-server:
+    image: gocd/gocd-server:v17.12.0
+    ports:
+      - 80:8000
+      - 9000
+    volumes:
+      - /var/lib/drone:/var/lib/drone/
+    restart: always
+    environment:
+      - DRONE_OPEN=true
+      - DRONE_HOST=http://drone.aysaas.com
+      - DRONE_SECRET=6e930789a27432949717f0b0534e41e1450592af
+
+
+
+  drone-agent:
+    image: gocd/gocd-agent-alpine-3.6:v17.12.0
+    restart: always
+    links:
+      - drone-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_SERVER=drone-server:9000
+      - DRONE_SECRET=6e930789a27432949717f0b0534e41e1450592af
