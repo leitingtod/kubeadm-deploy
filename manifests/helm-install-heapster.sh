@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-helm install --name heapster stable/heapster --set rbac.create=true --namespace kube-system
+helm install --name heapster stable/heapster \
+    --namespace kube-system \
+    --set rbac.create=true
