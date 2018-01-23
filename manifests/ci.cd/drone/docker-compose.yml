@@ -11,9 +11,11 @@ services:
       - /var/lib/drone:/var/lib/drone/
     restart: always
     environment:
-      - DRONE_OPEN=true
+      - DRONE_OPEN=false
+      - DRONE_ADMIN=admin
       - DRONE_HOST=http://drone.aysaas.com
       - DRONE_SECRET=6e930789a27432949717f0b0534e41e1450592af
+      - DRONE_PROVIDER="github"
 
 #      - DRONE_CODING=true
 #      - DRONE_CODING_URL=https://safirst.coding.net
@@ -23,27 +25,27 @@ services:
 #      - DRONE_CODING_GIT_MACHINE=e.coding.net
 #      - DRONE_CODING_SKIP_VERIFY=true
 
-      - DRONE_GITHUB=true
-
-      - DRONE_GITHUB_URL=https://github.com
-
-      - DRONE_GITHUB_CLIENT=04db9943adaa6e53a7af
-
-      - DRONE_GITHUB_SECRET=e5768e1641ba5ff48d6253e17c3c242911632eed
-
-      - DRONE_GITHUB_SCOPE=repo,repo:status,user:email,read:org
-
-      - DRONE_GITHUB_GIT_USERNAME=leitingtod@gmail.com
-
-      - DRONE_GITHUB_GIT_PASSWORD=liuyazhou88
-
-      - DRONE_GITHUB_PRIVATE_MODE=false
-
-      - DRONE_GITHUB_MERGE_REF=true
-
-      - DRONE_GITHUB_CONTEXT=continuous-integration/drone
-
-      - DRONE_GITHUB_SKIP_VERIFY=true
+#      - DRONE_GITHUB=true
+#
+#      - DRONE_GITHUB_URL=https://github.com
+#
+#      - DRONE_GITHUB_CLIENT=04db9943adaa6e53a7af
+#
+#      - DRONE_GITHUB_SECRET=e5768e1641ba5ff48d6253e17c3c242911632eed
+#
+#      - DRONE_GITHUB_SCOPE=repo,repo:status,user:email,read:org
+#
+#      - DRONE_GITHUB_GIT_USERNAME=leitingtod@gmail.com
+#
+#      - DRONE_GITHUB_GIT_PASSWORD=liuyazhou88
+#
+#      - DRONE_GITHUB_PRIVATE_MODE=false
+#
+#      - DRONE_GITHUB_MERGE_REF=true
+#
+#      - DRONE_GITHUB_CONTEXT=continuous-integration/drone
+#
+#      - DRONE_GITHUB_SKIP_VERIFY=true
 
   drone-agent:
     image: drone/agent:latest
