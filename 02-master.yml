@@ -1,5 +1,7 @@
 
 - hosts:
   - kube-master
+  roles:
+  - kubeadm
   tasks:
   - include_tasks: roles/kubeadm/tasks/master.yml

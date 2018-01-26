@@ -1,3 +1,7 @@
+- name: 重启 kubelet
+  become: yes
+  shell: systemctl daemon-reload && systemctl restart kubelet
+
 - name: 查看 kubelet 状态
   become: yes
   ignore_errors: True
