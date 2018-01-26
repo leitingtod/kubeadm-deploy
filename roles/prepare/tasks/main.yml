@@ -8,22 +8,23 @@
     state: present
     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
 
-- name: Check CFSSL exists
-  become: yes
-  stat:
-    path: "/usr/local/bin/cfssl"
-  register: cfssl_stat
+## Kubeadm don't use cfssl
+#- name: Check CFSSL exists
+#  become: yes
+#  stat:
+#    path: "/usr/local/bin/cfssl"
+#  register: cfssl_stat
 
-- name: 安装 CFSSL
-  become: yes
-  copy: src=bin/{{ item }} dest=/usr/local/bin/{{ item }} mode=0755
-  with_items:
-  - cfssl
-  - cfssl-certinfo
-  - cfssljson
-  when: cfssl_stat.stat.exists == False
+#- name: 安装 CFSSL
+#  become: yes
+#  copy: src=bin/{{ item }} dest=/usr/local/bin/{{ item }} mode=0755
+#  with_items:
+#  - cfssl
+#  - cfssl-certinfo
+#  - cfssljson
+#  when: cfssl_stat.stat.exists == False
 
-- name: 更换 APT 源为 UST
+- name: 更换 APT 源为 USTC
   become: yes
   copy: src=sources.list-16.04 dest=/etc/apt/sources.list mode=0644
   tags: config
@@ -32,11 +33,7 @@
   become: yes
   shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3746C208A7317B0F
 
-- name: 更新 APT
-  become: yes
-  shell: apt-get update
-
-- name: 设置别名
+- name: 设置常用命令别名
   become: yes
   copy: src=alias.rc dest=/etc/profile.d/alias.sh mode=0644
   tags: config
@@ -45,6 +42,29 @@
   become: yes
   copy: src=gitconfig dest=/root/.gitconfig mode=0644
   tags: config
+
+- name: Disable Swap | /etc/fstab
+  become: yes
+  replace:
+    dest: /etc/fstab
+    regexp: '(^[^#].*swap.*sw.*$)'
+    replace: '# \1'
+    backup: yes
+  tags: fstab
+
+- name: Disable Swap | /etc/sysctl.d/k8s.conf
+  become: yes
+  lineinfile:
+    dest: /etc/sysctl.d/k8s.conf
+    line: 'vm.swappiness=0'
+    create: yes
+    state: present
+  tags: k8s-conf
+
+- name: Disable Swap | sysctl
+  become: yes
+  shell: sysctl -p /etc/sysctl.d/k8s.conf && swapoff -a
+  tags: swapoff
 
 - import_tasks: hostname.yml
 
