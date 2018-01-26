@@ -1,3 +1,7 @@
+- name: 更新 APT
+  become: yes
+  shell: apt-get update
+
 - name: 安装 Docker
   become: yes
   ignore_errors: True
@@ -31,3 +35,7 @@
   debug:
     var: shell_result.stdout_lines
   tags: check-status
+
+- name: 登录 Harbor
+  become: yes
+  shell: docker login dockerhub.aysaas.com -u liuyazhou -p leiting88Q

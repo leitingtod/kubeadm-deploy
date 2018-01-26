@@ -1,11 +1,3 @@
-- name: 关闭 firewall
-  become: yes
-  shell: systemctl stop ufw.service && systemctl disable ufw.service
-
-- name: 关闭 Swap
-  become: yes
-  shell: swapoff -a && sed -i '/ swap / s/^/#/' /etc/fstab
-
 - name: 安装 kubeadm kubectl kubelet
   become: yes
   apt: name={{ item }} state=present
@@ -14,21 +6,3 @@
   - kubectl
   - kubelet
   - kubernetes-cni
-
-- name: iptables settings
-  become: yes
-  shell: grep "^net.bridge.bridge-nf-call-arptables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-arptables = 1" >> /etc/sysctl.conf; grep "^net.bridge.bridge-nf-call-iptables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-iptables = 1" >> /etc/sysctl.conf; grep "^net.bridge.bridge-nf-call-ip6tables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.conf; sysctl -p >>/dev/null
-
-- name: 更换 kubelet pod-infra-container-image
-  become: yes
-  lineinfile:
-    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-    regexp: 'pod-infra-container-image='
-    line: 'Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=dockerhub.aysaas.com/kubernetes/pause-amd64:3.1"'
-    state: present
-
-- name: 重启 kubelet
-  become: yes
-  shell: systemctl daemon-reload && systemctl restart kubelet
-
-- import_tasks: kubelet-status.yml

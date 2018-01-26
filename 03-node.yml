@@ -1,4 +1,6 @@
 - hosts:
   - kube-node
+  roles:
+  - kubeadm
   tasks:
   - import_tasks: roles/kubeadm/tasks/node.yml

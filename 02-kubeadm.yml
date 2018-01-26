@@ -1,4 +1,0 @@
-- hosts:
-  - kube-cluster
-  roles:
-  - kubeadm
