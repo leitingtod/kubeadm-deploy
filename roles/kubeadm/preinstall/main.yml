@@ -1,0 +1,16 @@
+- name: 安装 kubeadm kubectl kubelet
+  become: yes
+  apt: name={{ item }} state=present
+  with_items:
+  - kubeadm
+  - kubectl
+  - kubelet
+  - kubernetes-cni
+
+- name: 更换 kubelet pod-infra-container-image
+  become: yes
+  lineinfile:
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    insertbefore: '^ExecStart=$'
+    line: 'Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=dockerhub.aysaas.com/kubernetes/pause-amd64:3.1"'
+    state: present

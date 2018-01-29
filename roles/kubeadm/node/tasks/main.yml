@@ -2,8 +2,15 @@
   become: yes
   shell: grep "^net.bridge.bridge-nf-call-arptables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-arptables = 1" >> /etc/sysctl.conf; grep "^net.bridge.bridge-nf-call-iptables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-iptables = 1" >> /etc/sysctl.conf; grep "^net.bridge.bridge-nf-call-ip6tables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.conf; sysctl -p >>/dev/null
 
-#- name: kubeadm join
-#  become: yes
-#  shell: kubeadm join --token 1d49cd.5cd70c6a9aa9c3fd 192.168.0.182:6443 --discovery-token-ca-cert-hash sha256:3edb5bbe345b76d002ec7108357a8d5b041bfb0b365784261cfd7d6b30e880b5
-#
-#- import_tasks: roles/kubeadm/tasks/kubelet.yml
+- name: kubeadm join
+  become: yes
+  shell: "{{ kubeadm_join }}"
+  register: shell_result
+  async: 45
+  poll: 5
+
+- name: kubeadm join
+  debug:
+    var: shell_result.stdout_lines
+
+- include_tasks: roles/kubeadm/master/tasks/kubelet.yml

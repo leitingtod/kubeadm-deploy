@@ -1,8 +1,0 @@
-- name: 安装 kubeadm kubectl kubelet
-  become: yes
-  apt: name={{ item }} state=present
-  with_items:
-  - kubeadm
-  - kubectl
-  - kubelet
-  - kubernetes-cni
