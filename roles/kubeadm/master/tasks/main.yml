@@ -1,0 +1,39 @@
+- name: 获取 kubeadm.conf
+  become: yes
+  copy: src=kubeadm.conf dest=/root/kubeadm.conf mode=0644
+
+- name: kubeadm init
+  become: yes
+  shell: kubeadm reset && kubeadm init --config /root/kubeadm.conf
+  register: shell_result
+  async: 45
+  poll: 5
+
+- name: kubeadm init
+  debug:
+    var: shell_result.stdout_lines
+
+- name: set kubeadm_join var
+  replace:
+    dest: roles/kubeadm/node/defaults/main.yml
+    regexp: '^kubeadm_join:.*$'
+    replace: "kubeadm_join: {{ shell_result.stdout_lines[-1].strip() }}"
+  delegate_to: localhost
+  ignore_errors: True
+  tags: set-kubeadm-join
+
+- name: kubectl config
+  shell: mkdir -p $HOME/.kube && sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+- name: Installing a pod network with Flannel
+  become: yes
+  become_user: root
+  copy: src=kube-flannel.yml dest=$HOME/kube-flannel.yml mode=0644
+  tags: flannel
+
+- include_tasks: kubelet.yml
+
+- name: Installing a pod network with Flannel
+  become: yes
+  shell: kubectl apply -f $HOME/kube-flannel.yml
+  tags: flannel
