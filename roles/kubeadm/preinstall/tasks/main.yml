@@ -14,3 +14,10 @@
     insertbefore: '^ExecStart=$'
     line: 'Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=dockerhub.aysaas.com/kubernetes/pause-amd64:3.1"'
     state: present
+
+- name: Install nfs-clinet for nsf-storage
+  become: yes
+  apt: name={{ item }} state=present
+  with_items:
+  - nfs-common
+  tags: install-nfs
