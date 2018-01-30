@@ -28,21 +28,25 @@ alias dkrmiall='sudo docker rmi $(sudo docker images -q -f dangling=true)'
 alias dkcleanall='dkrmall || true && dkrmiall'
 
 alias kl='kubectl'
+alias kk='kubectl -n kube-system'
 
 alias kg='kubectl get'
-alias kgp='kubectl get profiles'
+alias kkg='kubectl get -n kube-system'
+
+alias kgw='kubectl get -o wide'
+alias kkgw='kubectl get -n kube-system -o wide'
+
 alias kgn='kubectl get no --show-labels'
 alias kga='kubectl get --all-namespaces'
-alias kgw='kubectl get -o wide'
-alias kgk='kubectl get -n kube-system'
+
 
 alias ks='kubectl describe'
-alias ksk='kubectl describe -n kube-system'
+alias kks='kubectl describe -n kube-system'
 
 alias kc='kubectl create'
 
 alias kd='kubectl delete'
-alias kd='kubectl delete -n kube-system'
+alias kkd='kubectl delete -n kube-system'
 
 alias ka='kubectl apply'
 
