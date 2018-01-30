@@ -38,6 +38,11 @@
   copy: src=alias.rc dest=/etc/profile.d/alias.sh mode=0644
   tags: config-alias
 
+- name: add alias to /root/.bashrc
+  become: yes
+  shell: echo "source /etc/profile.d/alias.sh" >> /root/.bashrc
+  tags: config-alias
+
 - name: 设置 gitconfig
   become: yes
   copy: src=gitconfig dest=/root/.gitconfig mode=0644
