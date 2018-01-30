@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-helm init --upgrade \
-  --tiller-image="registry.cn-hangzhou.aliyuncs.com/google_containers/tiller:v2.7.2" \
+helm init --force-upgrade \
+  --tiller-image="dockerhub.aysaas.com/kubernetes/tiller:v2.8.0" \
   --tiller-namespace=kube-system \
   --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts \
   --service-account=tiller
 
-# helm init --upgrade -i registry.cn-hangzhou.aliyuncs.com/google_containers/tiller:v2.5.1
-#    --skip-refresh
-#  --kube-context kubernetes-admin@kubernetes
+# --tiller-image="registry.cn-hangzhou.aliyuncs.com/google_containers/tiller:v2.7.2"
+
 
 
 
