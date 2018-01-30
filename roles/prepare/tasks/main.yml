@@ -36,7 +36,7 @@
 - name: 设置常用命令别名
   become: yes
   copy: src=alias.rc dest=/etc/profile.d/alias.sh mode=0644
-  tags: config
+  tags: config-alias
 
 - name: 设置 gitconfig
   become: yes

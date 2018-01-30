@@ -25,6 +25,14 @@
 - name: kubectl config
   shell: mkdir -p $HOME/.kube && sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
+- name: fetch kubeconfig to bastion
+  become: yes
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: bin/{{ ''.join(NODE_NAME.split('.')[1:]) }}.admin.conf
+    flat: yes
+  tags: fetch-kubeconfig
+
 - name: Installing a pod network with Flannel
   become: yes
   become_user: root
