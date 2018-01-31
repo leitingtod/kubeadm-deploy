@@ -1,0 +1,9 @@
+- hosts:
+  - ftp
+  tasks:
+  - name: 设置常用命令别名
+    become: yes
+    copy: src={{ item }} dest=/srv/ftp/{{ item.split('/')[-1] }} mode=0644
+    with_items:
+    - roles/prepare/files/alias.rc
+    - bin/docker-compose

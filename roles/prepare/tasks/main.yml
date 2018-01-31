@@ -40,7 +40,11 @@
 
 - name: add alias to /root/.bashrc
   become: yes
-  shell: echo "source /etc/profile.d/alias.sh" >> /root/.bashrc
+  lineinfile:
+    dest: /root/.bashrc
+    regexp: '^.*alias\.sh.*$'
+    line: 'source /etc/profile.d/alias.sh'
+    state: present
   tags: config-alias
 
 - name: 设置 gitconfig
