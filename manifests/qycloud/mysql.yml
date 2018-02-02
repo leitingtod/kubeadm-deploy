@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  selector:
+    app: qycloud-mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: qycloud-mysql
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: qycloud-mysql
+    spec:
+      imagePullSecrets:
+      - name: harbor-registry-secret
+      containers:
+      - name: mysql
+        image: dockerhub.aysaas.com/library/aysaas/mysql:5.6.38-jessie
+        env:
+        - name: MYSQL_DATABASE
+          value: master
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+          - name: saas-nfs
+            mountPath: "/var/lib/mysql"
+            subPath: "data/mysql"
+            readOnly: false
+
+      volumes:
+      - name: saas-nfs
+        persistentVolumeClaim:
+          claimName: saas-saas
