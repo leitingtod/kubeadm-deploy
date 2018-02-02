@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: qycloud
+  namespace: default
+spec:
+  rules:
+    - host: www.master.aysaas.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: qycloud-frontend
+              servicePort: 80
+    - host: static.master.aysaas.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: qycloud-frontend
+              servicePort: 80
+    - host: fileio.master.aysaas.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: qycloud-frontend
+              servicePort: 80
+    - host: update.master.aysaas.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: qycloud-frontend
+              servicePort: 80

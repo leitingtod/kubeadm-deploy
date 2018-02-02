@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    app: mongo
+spec:
+  selector:
+    app: qycloud-mongo
+  ports:
+  - port: 27017
+    targetPort: 27017
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: qycloud-mongo
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: qycloud-mongo
+    spec:
+      imagePullSecrets:
+      - name: harbor-registry-secret
+      containers:
+      - name: mongo
+        image: dockerhub.aysaas.com/library/aysaas/mongo:3.4.10-jessie
+        env:
+        - name: AUTH
+          value: "no"
+        - name: MONGODB_ADMIN_PASS
+          value: root
+        - name: MONGODB_ADMIN_USER
+          value: root
+        - name: MONGODB_APPLICATION_DATABASE
+          value: qycloud
+        - name: MONGODB_APPLICATION_PASS
+          value: root
+        - name: MONGODB_APPLICATION_USER
+          value: root
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+          - name: saas-nfs
+            mountPath: "/data"
+            subPath: "data/mongo"
+
+      volumes:
+      - name: saas-nfs
+        persistentVolumeClaim:
+          claimName: saas-saas
