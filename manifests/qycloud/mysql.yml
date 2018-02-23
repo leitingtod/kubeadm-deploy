@@ -6,7 +6,7 @@ metadata:
     app: mysql
 spec:
   selector:
-    app: qycloud-mysql
+    app: mysql
   ports:
   - port: 3306
     targetPort: 3306
@@ -14,13 +14,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: qycloud-mysql
+  name: mysql
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: qycloud-mysql
+        app: mysql
     spec:
       imagePullSecrets:
       - name: harbor-registry-secret

@@ -6,7 +6,7 @@ metadata:
     app: redis
 spec:
   selector:
-    app: qycloud-redis
+    app: redis
   ports:
   - port: 6379
     targetPort: 6379
@@ -14,13 +14,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: qycloud-redis
+  name: redis
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: qycloud-redis
+        app: redis
     spec:
       imagePullSecrets:
       - name: harbor-registry-secret

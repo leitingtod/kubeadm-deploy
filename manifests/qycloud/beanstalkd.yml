@@ -6,7 +6,7 @@ metadata:
     app: beanstalkd
 spec:
   selector:
-    app: qycloud-beanstalkd
+    app: beanstalkd
   ports:
   - port: 11300
     targetPort: 11300
@@ -14,13 +14,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: qycloud-beanstalkd
+  name: beanstalkd
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: qycloud-beanstalkd
+        app: beanstalkd
     spec:
       imagePullSecrets:
       - name: harbor-registry-secret
