@@ -12,26 +12,26 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: qycloud-frontend
+              serviceName: frontend
               servicePort: 80
     - host: static.master.aysaas.com
       http:
         paths:
           - path: /
             backend:
-              serviceName: qycloud-frontend
+              serviceName: frontend
               servicePort: 80
     - host: fileio.master.aysaas.com
       http:
         paths:
           - path: /
             backend:
-              serviceName: qycloud-frontend
+              serviceName: frontend
               servicePort: 80
     - host: update.master.aysaas.com
       http:
         paths:
           - path: /
             backend:
-              serviceName: qycloud-frontend
+              serviceName: frontend
               servicePort: 80
