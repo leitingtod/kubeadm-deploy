@@ -1,5 +1,5 @@
-#[ansible-ops]
-#localhost ansible_connection=local ansible_ssh_user=anyuan ansible_ssh_pass=123 ansible_sudo_pass=123
+[ansible-ops]
+localhost ansible_connection=local ansible_ssh_user=anyuan ansible_ssh_pass=123 ansible_sudo_pass=123
 
 [ftp]
 192.168.0.181 NODE_NAME=dockerhub NODE_IP="192.168.0.181" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
@@ -11,7 +11,7 @@
 [kube-master]
 192.168.0.173 NODE_NAME=master1.az1 NODE_IP="192.168.0.173" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
 
-#192.168.0.182 NODE_NAME=master1.az1 NODE_IP="192.168.0.182" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
+192.168.0.182 NODE_NAME=master1.az1 NODE_IP="192.168.0.182" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
 #192.168.0.185 NODE_NAME=master1.az2 NODE_IP="192.168.0.185" ansible_ssh_user=anyuan ansible_ssh_pass=123456 ansible_sudo_pass=123456
 
 
