@@ -4,6 +4,19 @@
   - name: 设置常用命令别名
     become: yes
     copy: src={{ item }} dest=/srv/ftp/{{ item.split('/')[-1] }} mode=0644
-    with_items:
+    with_fileglob:
     - roles/prepare/files/alias.rc
-    - bin/docker-compose
+    - bin/docker-compose-*
+    - bin/*.conf
+    - bin/helm-*
+
+- hosts:
+  - ansible-ops
+  tasks:
+  - name: 设置常用命令别名
+    become: yes
+    copy: src={{ item }} dest=/home/anyuan/program/docker-dev/bastion-client/{{ item.split('/')[-1] }} mode=0644
+    with_fileglob:
+    - roles/prepare/files/alias.rc
+    - bin/*.conf
+    - bin/helm-*

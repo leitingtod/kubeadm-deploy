@@ -29,7 +29,7 @@
   become: yes
   fetch:
     src: /etc/kubernetes/admin.conf
-    dest: bin/{{ ''.join(NODE_NAME.split('.')[1:]) }}.admin.conf
+    dest: bin/{{ NODE_IP }}.admin.conf
     flat: yes
   tags: fetch-kubeconfig
 
