@@ -1,13 +1,12 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "qycloud.fullname" . -}}
-{{- $servicePort := .Values.service.port -}}
+{{- $servicePort := .Values.frontend.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ template "qycloud.fullname" . }}
   labels:
-    app: {{ template "qycloud.name" . }}
     chart: {{ template "qycloud.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -33,7 +32,7 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $fullName }}
-              servicePort: http
+              serviceName: {{ $fullName }}-frontend
+              servicePort: {{ $servicePort }}
   {{- end }}
 {{- end }}

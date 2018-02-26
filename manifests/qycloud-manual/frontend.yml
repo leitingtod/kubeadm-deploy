@@ -60,9 +60,8 @@ spec:
         volumeMounts:
           - name: saas-nfs
             mountPath: "/opt"
-          - name: saas-nfs
-            mountPath: "/etc/nginx/conf.d"
-            subPath: "data/nginx/conf.d"
+          - name: nginx-aysaas-config
+            mountPath: "/etc/nginx/conf.d/"
 
       - name: php
         image: dockerhub.aysaas.com/library/aysaas/php:7.0-ubuntu-14.04-dev
@@ -85,6 +84,9 @@ spec:
             mountPath: "/opt"
 
       volumes:
+      - name: nginx-aysaas-config
+        configMap:
+          name: qycloud-config
       - name: saas-nfs
         persistentVolumeClaim:
           claimName: saas-saas
