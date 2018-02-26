@@ -1,1 +1,1 @@
-kubeadm_join: kubeadm join --token e2808f.770386107255f073 192.168.0.173:6443 --discovery-token-ca-cert-hash sha256:fe0ef0c905d2c5cc880ac67c3366331e011df9c8bcc94bad1da3c2bce140f888
+kubeadm_join: kubeadm join --token ca1e2c.43c8bc4f119cc5b5 192.168.0.173:6443 --discovery-token-ca-cert-hash sha256:ece4564462167d16dbead510d1943257b772623079e4cf1a83e4e12976d7bca9
