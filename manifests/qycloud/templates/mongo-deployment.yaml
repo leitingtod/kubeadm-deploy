@@ -8,17 +8,15 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  type: {{ .Values.redis.service.type }}
+  type: {{ .Values.mongo.service.type }}
   ports:
-    - port: {{ .Values.redis.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    - port: {{ .Values.mongo.service.port }}
+      targetPort: {{ .Values.mongo.service.port }}
   selector:
     app: {{ .Release.Name }}-mongo
     release: {{ .Release.Name }}
 ---
-apiVersion: apps/v1beta2
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: {{ template "qycloud.fullname" . }}-mongo
@@ -28,7 +26,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.mongo.replicaCount }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-mongo
@@ -39,18 +37,48 @@ spec:
         app: {{ .Release.Name }}-mongo
         release: {{ .Release.Name }}
     spec:
-      imagePullSecrets:
-{{ toYaml .Values.imagePullSecrets | indent 6 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: mongo
           image: "{{ .Values.mongo.image }}:{{ .Values.mongo.imageTag }}"
           imagePullPolicy: {{ .Values.mongo.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
+          - containerPort: {{ .Values.mongo.containerPort }}
+          env:
+            - name: AUTH
+              value: {{ .Values.mongo.env.auth | quote }}
+            - name: MONGODB_ADMIN_PASS
+              value: {{ .Values.mongo.env.adminPassword }}
+            - name: MONGODB_ADMIN_USER
+              value: {{ .Values.mongo.env.adminUser }}
+            - name: MONGODB_APPLICATION_DATABASE
+              value: {{ .Values.mongo.env.appDatabase }}
+            - name: MONGODB_APPLICATION_PASS
+              value: {{ .Values.mongo.env.appDatabasePassword }}
+            - name: MONGODB_APPLICATION_USER
+              value: {{ .Values.mongo.env.appDatabaseUser }}
           resources:
 {{ toYaml .Values.mongo.resources | indent 12 }}
+          volumeMounts:
+            - name: saas-home
+              mountPath: "/data"
+              subPath: "data/mongo"
+      volumes:
+{{- if .Values.persistence.volumes }}
+{{ toYaml .Values.persistence.volumes | indent 6 }}
+{{- end }}
+      - name: saas-home
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default (include "qycloud.fullname" .) }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}
+
+{{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+{{- end -}}
+
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
