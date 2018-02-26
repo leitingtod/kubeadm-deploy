@@ -1,6 +1,7 @@
 - name: 获取 kubeadm.conf
   become: yes
   copy: src=kubeadm.conf dest=/root/kubeadm.conf mode=0644
+  tags: upload-kubeadmconf
 
 - name: kubeadm init
   become: yes

@@ -33,9 +33,9 @@
   become: yes
   shell: hostname
   register: shell_result
-  tags: check-status reboot
+  tags: check-status
 
 - name: 查看 hostname
   debug:
     var: shell_result.stdout_lines
-  tags: check-status reboot
+  tags: check-status
