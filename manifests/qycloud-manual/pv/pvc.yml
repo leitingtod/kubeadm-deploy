@@ -8,4 +8,4 @@ spec:
   storageClassName: "aysaas-nfs"
   resources:
     requests:
-      storage: 8G
+      storage: 8Gi

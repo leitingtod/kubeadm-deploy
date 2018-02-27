@@ -83,8 +83,14 @@ spec:
             value: {{ .Values.frontend.php.env.environment }}
           - name: MYSQL_ROOT_PASSWORD
             value: {{ .Values.mysql.env.rootPassword | quote }}
+          - name: QUEUE_HOST
+            value: {{ template "qycloud.fullname" . }}-beanstalkd
+          - name: MONGO_HOST
+            value: {{ template "qycloud.fullname" . }}-mongo
           - name: MYSQL_HOST
             value: {{ template "qycloud.fullname" . }}-mysql
+          - name: REDIS_HOST
+            value: {{ template "qycloud.fullname" . }}-redis
           resources:
 {{ toYaml .Values.frontend.resources | indent 12 }}
           volumeMounts:
