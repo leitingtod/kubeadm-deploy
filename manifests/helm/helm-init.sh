@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-helm init --force-upgrade \
+helm init --upgrade \
   --tiller-image="dockerhub.aysaas.com/kubernetes/tiller:v2.8.0" \
   --tiller-namespace=kube-system \
   --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts \
