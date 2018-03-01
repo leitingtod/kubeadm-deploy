@@ -1,0 +1,19 @@
+frontend:
+  source:
+    imageTag: "master"
+
+persistence:
+  ## If defined, PVC must be created manually before volume will be bound
+#  existingClaim: "saas-saas"
+
+  size: 8Gi
+  storageClass: "aysaas-nfs"
+
+ingress:
+  path: /
+  hosts:
+    master: www.test.com
+    static: static.test.com
+    fileio: fileio.test.com
+    xhprof: xhprof.test.com
+    queue: queue.test.com
