@@ -45,18 +45,43 @@ spec:
       {{- end }}
 
       initContainers:
-      - name: init-beanstalkd
-        image: busybox
-        command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
-      - name: init-mongo
-        image: busybox
-        command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-mongo; do echo waiting for mongo; sleep 2; done;']
-      - name: init-mysql
-        image: busybox
-        command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-mysql; do echo waiting for mysql; sleep 2; done;']
-      - name: init-redis
-        image: busybox
-        command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-redis; do echo waiting for redis; sleep 2; done;']
+        - name: get-source
+          image: "{{ .Values.frontend.source.image }}:{{ .Values.frontend.source.imageTag }}"
+          imagePullPolicy: {{ .Values.frontend.source.pullPolicy }}
+          volumeMounts:
+            - name: saas-home
+              mountPath: "/opt"
+
+        - name: node-build
+          image: "{{ .Values.frontend.nodeBuild.image }}:{{ .Values.frontend.nodeBuild.imageTag }}"
+          imagePullPolicy: {{ .Values.frontend.source.pullPolicy }}
+          volumeMounts:
+            - name: saas-home
+              mountPath: "/opt"
+
+        - name: php-build
+          image: "{{ .Values.frontend.php.image }}:{{ .Values.frontend.php.imageTag }}"
+          imagePullPolicy: {{ .Values.frontend.php.pullPolicy }}
+          command: ['/start.sh', 'build']
+          volumeMounts:
+            - name: saas-home
+              mountPath: "/opt"
+
+        - name: init-beanstalkd
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
+
+        - name: init-mongo
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-mongo; do echo waiting for mongo; sleep 2; done;']
+
+        - name: init-mysql
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-mysql; do echo waiting for mysql; sleep 2; done;']
+
+        - name: init-redis
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-redis; do echo waiting for redis; sleep 2; done;']
 
       containers:
         - name: nginx
