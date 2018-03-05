@@ -123,12 +123,13 @@ ingress:
     kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   path: /
+  domain: default.com
   hosts:
-    master: www.default.com
-    static: static.default.com
-    fileio: fileio.default.com
-    xhprof: xhprof.default.com
-    queue: queue.default.com
+    master: www
+    static: static
+    fileio: fileio
+    xhprof: xhprof
+    queue: queue
 
   tls: []
   #  - secretName: chart-example-tls
