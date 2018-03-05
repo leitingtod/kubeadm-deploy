@@ -10,10 +10,5 @@ persistence:
   storageClass: "aysaas-nfs"
 
 ingress:
-  path: /
-  hosts:
-    master: www.test.com
-    static: static.test.com
-    fileio: fileio.test.com
-    xhprof: xhprof.test.com
-    queue: queue.test.com
+  domain: example.com
+
