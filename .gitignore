@@ -9,5 +9,6 @@ flight-school/
 manifests/ci.cd/drone/drone
 manifests/ci.cd/flow.ci/docker/
 manifests/helm/monocular
+manifests/helm/kubeapps
 manifests/qycloud/debug/
 
