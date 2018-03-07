@@ -1,6 +1,7 @@
+{{- $serverDomain := .Values.ingress.domain -}}
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.master }}.{{ .Values.ingress.domain }}{{ $.Values.ingress.path }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.master }}.{{ $serverDomain }}{{ $.Values.ingress.path }}
 {{- else if contains "NodePort" .Values.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "qycloud.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
@@ -15,3 +16,6 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl port-forward $POD_NAME 8080:80
 {{- end }}
+
+2. Add DNS-Records to localhost's /etc/hosts Or remote DNS-Server
+  dns.sh add {{ $serverDomain }}
