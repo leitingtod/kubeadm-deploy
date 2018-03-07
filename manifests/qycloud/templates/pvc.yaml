@@ -2,9 +2,9 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "qycloud.fullname" . }}
+  name: {{ .Release.Name }}
   labels:
-    app: {{ template "qycloud.fullname" . }}
+    app: {{ .Release.Name }}
     chart: {{ template "qycloud.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
