@@ -6,7 +6,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ template "qycloud.fullname" . }}
+  name: {{ .Release.Name }}
   labels:
     chart: {{ template "qycloud.chart" . }}
     release: {{ .Release.Name }}
