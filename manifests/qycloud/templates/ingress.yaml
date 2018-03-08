@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "qycloud.fullname" . -}}
+{{- $releaseName := .Release.Name -}}
 {{- $serverDomain := .Values.ingress.domain -}}
 {{- $servicePort := .Values.frontend.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
@@ -33,7 +33,7 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $fullName }}-frontend
+              serviceName: {{ $releaseName }}-frontend
               servicePort: {{ $servicePort }}
   {{- end }}
 {{- end }}

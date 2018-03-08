@@ -70,19 +70,19 @@ spec:
 
         - name: init-beanstalkd
           image: busybox
-          command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
 
         - name: init-mongo
           image: busybox
-          command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-mongo; do echo waiting for mongo; sleep 2; done;']
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-mongo; do echo waiting for mongo; sleep 2; done;']
 
         - name: init-mysql
           image: busybox
-          command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-mysql; do echo waiting for mysql; sleep 2; done;']
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-mysql; do echo waiting for mysql; sleep 2; done;']
 
         - name: init-redis
           image: busybox
-          command: ['sh', '-c', 'until nslookup {{ template "qycloud.fullname" . }}-redis; do echo waiting for redis; sleep 2; done;']
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-redis; do echo waiting for redis; sleep 2; done;']
 
       containers:
         - name: nginx
@@ -110,13 +110,13 @@ spec:
           - name: MYSQL_ROOT_PASSWORD
             value: {{ .Values.mysql.env.rootPassword | quote }}
           - name: QUEUE_HOST
-            value: {{ template "qycloud.fullname" . }}-beanstalkd
+            value: {{ .Release.Name }}-beanstalkd
           - name: MONGO_HOST
-            value: {{ template "qycloud.fullname" . }}-mongo
+            value: {{ .Release.Name }}-mongo
           - name: MYSQL_HOST
-            value: {{ template "qycloud.fullname" . }}-mysql
+            value: {{ .Release.Name }}-mysql
           - name: REDIS_HOST
-            value: {{ template "qycloud.fullname" . }}-redis
+            value: {{ .Release.Name }}-redis
           resources:
 {{ toYaml .Values.frontend.resources | indent 12 }}
           volumeMounts:
@@ -129,11 +129,11 @@ spec:
 {{- end }}
       - name: nginx-aysaas-config
         configMap:
-          name: {{ template "qycloud.fullname" . }}-config
+          name: {{ .Release.Name }}-config
       - name: saas-home
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ .Values.persistence.existingClaim | default (include "qycloud.fullname" .) }}
+          claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}
       {{- else }}
         emptyDir: {}
       {{- end -}}
