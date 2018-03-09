@@ -1,7 +1,7 @@
 - hosts:
   - kube-node
   roles:
-  - prepare
-  - docker
-  - kubeadm/preinstall
-  - kubeadm/node
+  - { role: prepare, tags: [ "prepare" ] }
+  - { role: docker, tags: [ "docker" ] }
+  - { role: kubeadm/preinstall, tags: [ "preinst" ] }
+  - { role: kubeadm/node, tags: [ "install" ] }
