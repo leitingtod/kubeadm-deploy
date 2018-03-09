@@ -1,5 +1,7 @@
 - hosts:
   - kube-node
   roles:
+  - prepare
+  - docker
   - kubeadm/preinstall
   - kubeadm/node
