@@ -20,7 +20,7 @@ alias dkv='sudo docker volume'
 alias dkillall='sudo docker kill $(sudo docker ps -a -q)'
 
 # 删除所有已经停止的容器.
-alias dkrmall='sudo docker rm $(docker ps -q -f status=exited)'
+alias dkrmall='sudo docker rm $(sudo docker ps -q -f status=exited)'
 
 # 删除所有未打标签的镜像.
 alias dkrmiall='sudo docker rmi $(sudo docker images -q -f dangling=true)'

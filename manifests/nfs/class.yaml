@@ -4,3 +4,10 @@ metadata:
   name: aysaas-nfs
 reclaimPolicy: Retain
 provisioner: aysaas.com/nfs
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: aysaas-nfs-once
+reclaimPolicy: Delete
+provisioner: aysaas.com/nfs
