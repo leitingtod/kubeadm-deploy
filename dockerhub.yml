@@ -1,5 +1,5 @@
 - hosts:
   - dockerhub
   roles:
-  - prepare
-  - docker
+  - { role: prepare, tags: [ "prepare" ] }
+  - { role: docker, tags: [ "docker" ] }
