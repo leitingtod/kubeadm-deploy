@@ -114,7 +114,7 @@ persistence:
 
   accessMode: ReadWriteMany
   size: 8Gi
-  storageClass: "aysaas-nfs"
+  storageClass: "aysaas-nfs-once"
 
 
 ingress:

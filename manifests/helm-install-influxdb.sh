@@ -11,5 +11,5 @@ else
         --set image.repo=dockerhub.aysaas.com/kubernetes/influxdb \
         --set image.tag=1.4.2-alpine \
         --set persistence.enabled=true \
-        --set persistence.storageClass="aysaas-nfs"
+        --set persistence.storageClass="aysaas-nfs-once"
 fi
