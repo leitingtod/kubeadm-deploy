@@ -9,7 +9,7 @@ else
         --namespace kube-system \
         --set rbac.create=true \
         --set server.persistentVolume.enabled=true \
-        --set server.persistentVolume.storageClass="aysaas-nfs" \
+        --set server.persistentVolume.storageClass="aysaas-nfs-once" \
         --set server.image=dockerhub.aysaas.com/kubernetes/grafana/grafana:4.6.3
 fi
 
