@@ -53,21 +53,6 @@ spec:
             - name: saas-home
               mountPath: "/opt"
 
-        - name: node-build
-          image: "{{ .Values.frontend.nodeBuild.image }}:{{ .Values.frontend.nodeBuild.imageTag }}"
-          imagePullPolicy: {{ .Values.frontend.source.pullPolicy }}
-          volumeMounts:
-            - name: saas-home
-              mountPath: "/opt"
-
-        - name: php-build
-          image: "{{ .Values.frontend.php.image }}:{{ .Values.frontend.php.imageTag }}"
-          imagePullPolicy: {{ .Values.frontend.php.pullPolicy }}
-          command: ['/start.sh', 'build']
-          volumeMounts:
-            - name: saas-home
-              mountPath: "/opt"
-
         - name: init-beanstalkd
           image: busybox
           command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
