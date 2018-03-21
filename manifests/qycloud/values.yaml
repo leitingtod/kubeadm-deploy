@@ -15,21 +15,14 @@ frontend:
 
   php:
     image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.0-ubuntu-14.04-dev"
+    imageTag: "7.0-ubuntu-14.04"
     pullPolicy: Always
     containerPort: 9000
-    env:
-      environment: "production"
 
   source:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
     imageTag: "master"
     pullPolicy: Always
-
-  nodeBuild:
-    image: "dockerhub.aysaas.com/library/aysaas/node"
-    imageTag: "9.3.0-alpine"
-    pullPolicy: IfNotPresent
 
   service:
     type: ClusterIP
