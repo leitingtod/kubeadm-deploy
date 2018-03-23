@@ -10,7 +10,7 @@ frontend:
   nginx:
     image: "dockerhub.aysaas.com/library/aysaas/nginx"
     imageTag: "1.13.7-alpine"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     containerPort: 80
 
   php:
@@ -38,7 +38,7 @@ beanstalkd:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/beanstalkd"
   imageTag: "1.10-alpine"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   containerPort: 11300
   service:
     type: ClusterIP
@@ -52,7 +52,7 @@ mongo:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/mongo"
   imageTag: "3.4.10-jessie"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   containerPort: 27017
   service:
     type: ClusterIP
@@ -73,7 +73,7 @@ mysql:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/mysql"
   imageTag: "5.6.38-jessie"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   containerPort: 3306
   service:
     type: ClusterIP
@@ -90,7 +90,7 @@ redis:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/redis"
   imageTag: "4.0.6-alpine"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   containerPort: 6379
   service:
     type: ClusterIP
