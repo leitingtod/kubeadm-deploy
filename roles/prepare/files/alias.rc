@@ -30,16 +30,17 @@ alias dkcleanall='dkrmall || true && dkrmiall'
 
 alias kl='kubectl'
 alias kk='kubectl -n kube-system'
+alias kla='kubectl --all-namespaces'
 
 alias kg='kubectl get'
 alias kkg='kubectl get -n kube-system'
+alias kga='kubectl get --all-namespaces'
 
 alias kgw='kubectl get -o wide'
 alias kkgw='kubectl get -n kube-system -o wide'
+alias kgaw='kubectl get --all-namespaces -o wide'
 
 alias kgn='kubectl get no --show-labels'
-alias kga='kubectl get --all-namespaces'
-
 
 alias ks='kubectl describe'
 alias kks='kubectl describe -n kube-system'
@@ -47,7 +48,9 @@ alias kks='kubectl describe -n kube-system'
 alias kc='kubectl create'
 
 alias kd='kubectl delete'
+alias kdf='kubectl delete --grace-period=0 --force'
 alias kkd='kubectl delete -n kube-system'
+alias kkdf='kubectl delete -n kube-system --grace-period=0 --force'
 
 alias ka='kubectl apply'
 
