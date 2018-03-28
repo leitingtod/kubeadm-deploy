@@ -1,10 +1,13 @@
-{{- $fullName := "127.0.0.1" -}}
-{{- $phpFastcgiPort := .Values.frontend.php.containerPort -}}
+{{- $phpFastCGIHost := "127.0.0.1" -}}
+{{- $phpFastCGIPort := .Values.frontend.php.containerPort -}}
+{{- $nodeFastCGIHost := "127.0.0.1" -}}
+{{- $nodeFastCGIPort := .Values.frontend.node.containerPort -}}
 {{- $serverDomain := .Values.ingress.domain -}}
 {{- $masterServerName := .Values.ingress.hosts.master -}}
 {{- $staticServerName := .Values.ingress.hosts.static -}}
 {{- $fileioServerName := .Values.ingress.hosts.fileio -}}
 {{- $xhprofServerName := .Values.ingress.hosts.xhprof -}}
+{{- $nodesaasServerName := .Values.ingress.hosts.nodesaas -}}
 {{- $queueConsoleServerName := .Values.ingress.hosts.queue -}}
 kind: ConfigMap
 apiVersion: v1
@@ -58,9 +61,37 @@ data:
         if ($request_uri ~ "^/service_org") {
           root /opt/org/public;
         }
-        fastcgi_pass   {{ $fullName }}:{{ $phpFastcgiPort }};
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
+      }
+
+      location ~ ^/common {
+        proxy_redirect off;
+        proxy_set_header   Host   $host;
+        proxy_set_header   X-Real-IP  $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   Accept-Encoding "gzip";
+        proxy_pass http://nodecgi;
+      }
+
+      # 应用中心
+      location ~ ^/appcenter(?!\/appsystem) {
+        proxy_redirect off;
+        proxy_set_header   Host   $host;
+        proxy_set_header   X-Real-IP  $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   Accept-Encoding "gzip";
+        proxy_pass http://nodecgi;
+      }
+
+      location ~ ^/organization(?!\/(contacts|manage)) {
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Accept-Encoding "gzip";
+        proxy_pass http://nodecgi;
       }
     }
 
@@ -99,7 +130,7 @@ data:
       }
 
       location ~ \.php$ {
-        fastcgi_pass   {{ $fullName }}:{{ $phpFastcgiPort }};
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
@@ -120,7 +151,7 @@ data:
       }
 
       location ~ \.php$ {
-        fastcgi_pass   {{ $fullName }}:{{ $phpFastcgiPort }};
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
@@ -149,8 +180,182 @@ data:
       }
 
       location ~ \.php$ {
-        fastcgi_pass   {{ $fullName }}:{{ $phpFastcgiPort }};
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
     }
+
+    server {
+        server_name {{ $nodesaasServerName }}.{{$serverDomain}};
+
+        root /opt/node-saas/public/dist;
+
+        error_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-error.log error;
+        access_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-access.log combined;
+
+        location ~* \.(eot|ttf|woff|woff2)$ {
+            add_header Access-Control-Allow-Origin *;
+        }
+    }
+  nginx.conf: |-
+    # For more information on configuration, see:
+    #   * Official English Documentation: http://nginx.org/en/docs/
+    #   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+    user  nginx;
+    worker_processes  8;
+
+    error_log  /var/log/nginx/error.log;
+    #error_log  /var/log/nginx/error.log  notice;
+    #error_log  /var/log/nginx/error.log  info;
+
+    pid        /run/nginx.pid;
+
+
+    events {
+        worker_connections  1024;
+    }
+
+
+    http {
+        upstream nodecgi {
+            server {{ $nodeFastCGIHost }}:{{ $nodeFastCGIPort }};
+        }
+
+        include       /etc/nginx/mime.types;
+        include       /etc/nginx/sites-enabled/*;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile        on;
+        #tcp_nopush     on;
+
+        #keepalive_timeout  0;
+        keepalive_timeout  65;
+
+        gzip  on;
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_buffers 16 8k;
+        gzip_http_version 1.1;
+        gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
+        client_max_body_size 200M;
+        server_names_hash_max_size 1024;
+        server_names_hash_bucket_size 64;
+        fastcgi_buffers 8 128k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+        client_header_buffer_size 256k;
+        large_client_header_buffers 4 256k;
+
+        # Load modular configuration files from the /etc/nginx/conf.d directory.
+        # See http://nginx.org/en/docs/ngx_core_module.html#include
+        # for more information.
+        include /etc/nginx/conf.d/*.conf;
+
+        index   index.html index.htm;
+
+        server {
+            listen       80;
+            server_name  localhost;
+            root         /usr/share/nginx/html;
+
+            #charset koi8-r;
+
+            #access_log  /var/log/nginx/host.access.log  main;
+
+            location / {
+            }
+
+            # redirect server error pages to the static page /40x.html
+            #
+            error_page  404              /404.html;
+            location = /40x.html {
+            }
+
+            # redirect server error pages to the static page /50x.html
+            #
+            error_page   500 502 503 504  /50x.html;
+            location = /50x.html {
+            }
+
+            # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+            #
+            #location ~ \.php$ {
+            #    proxy_pass   http://127.0.0.1;
+            #}
+
+            # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+            #
+            #location ~ \.php$ {
+            #    root           html;
+            #    fastcgi_pass   127.0.0.1:9000;
+            #    fastcgi_index  index.php;
+            #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+            #    include        fastcgi_params;
+            #}
+
+            # deny access to .htaccess files, if Apache's document root
+            # concurs with nginx's one
+            #
+            #location ~ /\.ht {
+            #    deny  all;
+            #}
+        }
+
+
+        # another virtual host using mix of IP-, name-, and port-based configuration
+        #
+        #server {
+        #    listen       8000;
+        #    listen       somename:8080;
+        #    server_name  somename  alias  another.alias;
+        #    root         html;
+
+        #    location / {
+        #    }
+        #}
+
+
+        # HTTPS server
+        #
+        #server {
+        #    listen       443;
+        #    server_name  localhost;
+        #    root         html;
+
+        #    ssl                  on;
+        #    ssl_certificate      cert.pem;
+        #    ssl_certificate_key  cert.key;
+
+        #    ssl_session_timeout  5m;
+
+        #    ssl_protocols  SSLv2 SSLv3 TLSv1;
+        #    ssl_ciphers  HIGH:!aNULL:!MD5;
+        #    ssl_prefer_server_ciphers   on;
+
+        #    location / {
+        #    }
+        #}
+    }
+  development.js: |-
+    'use strict';
+
+    module.exports = {
+        port: {{ $nodeFastCGIPort }},
+        api: 'http://{{ $masterServerName }}.{{$serverDomain}}/',
+        static: 'http://{{ $nodesaasServerName }}.{{$serverDomain}}',
+        fileio: 'http://{{ $fileioServerName }}.{{$serverDomain}}',
+
+        logger: {
+            filename: 'log/node-saas.log'
+        }
+    };
