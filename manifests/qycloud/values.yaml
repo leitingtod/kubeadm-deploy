@@ -19,10 +19,14 @@ frontend:
     pullPolicy: Always
     containerPort: 9000
 
+  node:
+    containerPort: 5000
+
   source:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
     imageTag: "master"
     pullPolicy: Always
+    update: "true"
 
   service:
     type: ClusterIP
@@ -123,6 +127,7 @@ ingress:
     fileio: fileio
     xhprof: xhprof
     queue: queue
+    nodesaas: nodestatic
 
   tls: []
   #  - secretName: chart-example-tls

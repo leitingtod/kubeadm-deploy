@@ -46,12 +46,15 @@ spec:
       {{- end }}
 
       initContainers:
-        - name: get-source
+        - name: source
           image: "{{ .Values.frontend.source.image }}:{{ .Values.frontend.source.imageTag }}"
           imagePullPolicy: {{ .Values.frontend.source.pullPolicy }}
           volumeMounts:
             - name: saas-home
               mountPath: "/opt"
+          env:
+          - name: UPDATE_SOURCE
+            value: {{ .Values.frontend.source.update | quote }}
 
         - name: init-beanstalkd
           image: busybox
@@ -81,14 +84,24 @@ spec:
             - name: saas-home
               mountPath: "/opt"
             - name: nginx-aysaas-config
-              mountPath: "/etc/nginx/conf.d/"
-              #subPath: aysaas.conf
+              mountPath: "/etc/nginx/conf.d/aysaas.conf"
+              subPath: aysaas.conf
+            - name: nginx-aysaas-config
+              mountPath: "/etc/nginx/nginx.conf"
+              subPath: nginx.conf
+            - name: nginx-aysaas-config
+              mountPath: "/opt/node-saas/config/development.js"
+              subPath: development.js
 
         - name: php
           image: "{{ .Values.frontend.php.image }}:{{ .Values.frontend.php.imageTag }}"
           imagePullPolicy: {{ .Values.frontend.php.pullPolicy }}
           ports:
           - containerPort: {{ .Values.frontend.php.containerPort }}
+            name: php-fastcgi
+          - containerPort: {{ .Values.frontend.node.containerPort }}
+            name: node-cgi
+
           env:
           - name: MYSQL_ROOT_PASSWORD
             value: {{ .Values.mysql.env.rootPassword | quote }}
@@ -100,6 +113,8 @@ spec:
             value: {{ .Release.Name }}-mysql
           - name: REDIS_HOST
             value: {{ .Release.Name }}-redis
+          - name: APP_NAME
+            value: {{ .Release.Name }}
           resources:
 {{ toYaml .Values.frontend.resources | indent 12 }}
           volumeMounts:
