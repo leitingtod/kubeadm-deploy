@@ -52,9 +52,19 @@ spec:
           volumeMounts:
             - name: saas-home
               mountPath: "/opt"
+
           env:
-          - name: UPDATE_SOURCE
+          - name: UPDATE
             value: {{ .Values.frontend.source.update | quote }}
+
+        - name: config
+          image: busybox
+          command: ['sh', '-c', 'ls /opt; cp -f /opt/config/development.js /opt/node-saas/config']
+          volumeMounts:
+            - name: saas-home
+              mountPath: "/opt"
+            - name: saas-config
+              mountPath: "/opt/config"
 
         - name: init-beanstalkd
           image: busybox
@@ -83,15 +93,12 @@ spec:
           volumeMounts:
             - name: saas-home
               mountPath: "/opt"
-            - name: nginx-aysaas-config
-              mountPath: "/etc/nginx/conf.d/aysaas.conf"
-              subPath: aysaas.conf
-            - name: nginx-aysaas-config
+            - name: saas-config
               mountPath: "/etc/nginx/nginx.conf"
-              subPath: nginx.conf
-            - name: nginx-aysaas-config
-              mountPath: "/opt/node-saas/config/development.js"
-              subPath: development.js
+              subPath: "nginx.conf"
+            - name: saas-config
+              mountPath: "/etc/nginx/conf.d/aysaas.conf"
+              subPath: "aysaas.conf"
 
         - name: php
           image: "{{ .Values.frontend.php.image }}:{{ .Values.frontend.php.imageTag }}"
@@ -121,11 +128,12 @@ spec:
             - name: saas-home
               mountPath: "/opt"
 
+
       volumes:
 {{- if .Values.persistence.volumes }}
 {{ toYaml .Values.persistence.volumes | indent 6 }}
 {{- end }}
-      - name: nginx-aysaas-config
+      - name: saas-config
         configMap:
           name: {{ .Release.Name }}-config
       - name: saas-home
