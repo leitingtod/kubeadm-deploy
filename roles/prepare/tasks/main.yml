@@ -2,7 +2,7 @@
 #  sudo: yes
 #  raw: sudo apt-get update && sudo apt-get -y install python-2.7
 
-- name: Set authorized key for user ubuntu copying it from current user
+- name: SSH | Ssh-copy-id ~/.ssh
   authorized_key:
     user: anyuan
     state: present
@@ -24,21 +24,22 @@
 #  - cfssljson
 #  when: cfssl_stat.stat.exists == False
 
-- name: 更换 APT 源为 USTC
+- name: APT | Replace with USTC mirror
   become: yes
   copy: src=sources.list-16.04 dest=/etc/apt/sources.list mode=0644
-  tags: config
+  tags: config-apt
 
-- name: 添加 USTC Public Key
+- name: APT | Add USTC Public Key
   become: yes
   shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3746C208A7317B0F
+  tags: config-apt
 
-- name: 设置常用命令别名
+- name: Config | Set alias
   become: yes
   copy: src=alias.rc dest=/etc/profile.d/alias.sh mode=0644
   tags: config-alias
 
-- name: add alias to /root/.bashrc
+- name: Config | Enable alias
   become: yes
   lineinfile:
     dest: /root/.bashrc
@@ -47,10 +48,10 @@
     state: present
   tags: config-alias
 
-- name: 设置 gitconfig
+- name: Config | Set gitconfig
   become: yes
   copy: src=gitconfig dest=/root/.gitconfig mode=0644
-  tags: config
+  tags: config-git
 
 - import_tasks: hostname.yml
 
