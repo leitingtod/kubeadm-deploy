@@ -1,19 +1,19 @@
-- name: 更改 hostname
+- name: Hostname | Set hostname
   become: yes
   hostname:
     name: "{{ NODE_NAME }}"
-  tags: hostname
+  tags: set-hostname
 
-- name: Hosts | add hostname to /etc/hosts
+- name: Hosts | Add hostname to /etc/hosts
   become: yes
   lineinfile:
     dest: /etc/hosts
     regexp: '^127\.0\.0\.1[ \t]+localhost'
     line: '127.0.0.1 localhost {{ NODE_NAME }}'
     state: present
-  tags: hostname
+  tags: set-hostname
 
-- name: Hosts | add cluster node to /etc/hosts
+- name: Hosts | Add cluster node to /etc/hosts
   become: yes
   blockinfile:
     dest: /etc/hosts
@@ -25,17 +25,4 @@
     create: yes
     backup: yes
     marker: "# Ansible Inventory Hosts {mark}"
-  tags: hosts
-
-- import_tasks: restart.yml
-
-- name: 查看 hostname
-  become: yes
-  shell: hostname
-  register: shell_result
-  tags: check-status
-
-- name: 查看 hostname
-  debug:
-    var: shell_result.stdout_lines
-  tags: check-status
+  tags: set-hosts
