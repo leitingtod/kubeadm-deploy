@@ -1,7 +1,3 @@
-- name: 更新 APT
-  become: yes
-  shell: apt-get update
-
 - name: 安装 Docker
   become: yes
   ignore_errors: True

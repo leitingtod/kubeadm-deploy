@@ -31,8 +31,18 @@
 
 - name: APT | Add USTC Public Key
   become: yes
-  shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3746C208A7317B0F
+  shell: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7EA0A9C3F273FCD8 6A030B21BA07F4FB
   tags: config-apt
+
+- name: APT | Ready for apt-get update
+  become: yes
+  shell: dpkg --remove-architecture i386
+
+- name: APT | Apt-get update
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
 
 - name: Config | Set alias
   become: yes
