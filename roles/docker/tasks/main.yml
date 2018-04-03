@@ -1,4 +1,4 @@
-- name: 安装 Docker
+- name: Install | Install docker-ce
   become: yes
   ignore_errors: True
   apt:
@@ -6,32 +6,33 @@
     state: present
     allow_unauthenticated: yes
 
-- name: prepare /etc/docker
+- name: Config | Prepare /etc/docker
   become: yes
   file: name={{ item }} state=directory
   with_items:
   - /etc/docker
 
-- name: 配置 docker 镜像源
+- name: Config | Add docker registry
   become: yes
   copy: src=daemon.json dest=/etc/docker/daemon.json mode=0644
 
-- name: 重启 docker
+- name: Restart | Restart docker
   become: yes
   shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker
 
-- name: 查看 docker 状态
+- name: Status | Check docker status
   become: yes
   ignore_errors: True
   shell: systemctl status docker
   register: shell_result
-  tags: check-status
+  tags: docker-status
 
-- name: 查看 docker 状态
+- name: Status | Check docker status
   debug:
     var: shell_result.stdout_lines
-  tags: check-status
+  tags: docker-status
 
-- name: 登录 Harbor
+- name: Login | Login Harbor Docker Registry
   become: yes
-  shell: docker login dockerhub.aysaas.com -u liuyazhou -p leiting88Q
+  shell: docker login dockerhub.aysaas.com -u pull -p pull123Q
+  tags: docker-login
