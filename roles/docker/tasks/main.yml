@@ -6,7 +6,7 @@
   become: yes
   ignore_errors: True
   apt:
-    name: docker-ce=17.12.0~ce-0~ubuntu
+    name: docker-ce
     state: present
     allow_unauthenticated: yes
 
