@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
+#version: 0.8.8
+#appVersion: 0.9.0-beta.15
+
 NAME=nginx-ingress
+
 
 if [ ${1}x == "delx" ]; then
     helm del --purge ${NAME}
 else
-    helm install --name ${NAME} stable/nginx-ingress \
+    helm install --name ${NAME} aysaas/nginx-ingress -v 0.8.8 \
         --namespace kube-system \
         --set rbac.create=true \
         --set controller.service.type=NodePort \
