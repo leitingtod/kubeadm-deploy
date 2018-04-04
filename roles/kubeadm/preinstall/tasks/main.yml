@@ -7,6 +7,7 @@
   - kubelet
   - kubernetes-cni
 
+# 执行多次无法保证唯一性，要处理无，已有2种情况
 - name: Kerbernetes | Config kubelet pod-infra-container-image
   become: yes
   lineinfile:
