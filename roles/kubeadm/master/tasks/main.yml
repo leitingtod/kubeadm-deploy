@@ -1,8 +1,3 @@
-- name: 获取 kubeadm.conf
-  become: yes
-  copy: src=kubeadm.conf dest=/root/kubeadm.conf mode=0644
-  tags: upload-kubeadmconf
-
 - name: kubeadm init
   become: yes
   shell: kubeadm reset && kubeadm init --config /root/kubeadm.conf
@@ -34,12 +29,6 @@
     dest: bin/{{ NODE_IP }}.admin.conf
     flat: yes
   tags: fetch-kubeconfig
-
-- name: Installing a pod network with Flannel
-  become: yes
-  become_user: root
-  copy: src=kube-flannel.yml dest=$HOME/kube-flannel.yml mode=0644
-  tags: flannel
 
 - include_tasks: kubelet.yml
 
