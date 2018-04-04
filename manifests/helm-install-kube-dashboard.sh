@@ -13,7 +13,7 @@ else
         --namespace kube-system \
         --set ingress.enabled=true \
         --set rbac.create=true \
-        --set ingress.hosts[0]=${domain} \
-        --set image.repository=dockerhub.aysaas.com/kubernetes/kubernetes-dashboard-amd64 \
-        --set image.tag=v1.8.2
+        --set ingress.hosts[0]=${1} \
+        --set image=dockerhub.aysaas.com/kubernetes/kubernetes-dashboard-amd64 \
+        --set imageTag=v1.8.2
 fi
