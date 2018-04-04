@@ -1,7 +1,18 @@
 - hosts:
+  - kube-master
+  tasks:
+  - name: fetch kubeconfig
+    become: yes
+    fetch:
+      src: /etc/kubernetes/admin.conf
+      dest: bin/{{ NODE_IP }}.admin.conf
+      flat: yes
+    tags: fetch-kubeconfig
+
+- hosts:
   - ansible-ops
   tasks:
-  - name: 同步共享文件
+  - name: sync config files to bastion
     copy: src={{ item }} dest={{ playbook_dir.replace('kubeadm-deploy', '') }}docker-dev/bastion/{{ item.split('/')[-1] }} mode=0644 owner=anyuan group=anyuan
     with_fileglob:
     - roles/prepare/files/alias.rc

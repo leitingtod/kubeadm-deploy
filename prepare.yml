@@ -4,6 +4,15 @@
 #  roles:
 #  - prepare
 #  - docker
+
+- hosts:
+  - kube-cluster
+  roles:
+  - { role: kubeadm/preinstall, tags: [ "preinst" ] }
+
+#- hosts:
+#  - kube-cluster
+#  - dockerhub
 #  tasks:
 #  - name: Restart | Restart host
 #    become: yes
@@ -29,8 +38,3 @@
 #    debug:
 #      var: shell_result.stdout_lines
 #    tags: get-hostname
-
-- hosts:
-  - kube-cluster
-  roles:
-  - { role: kubeadm/preinstall, tags: [ "preinst" ] }
