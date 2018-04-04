@@ -1,4 +1,4 @@
-- name: 安装 kubeadm kubectl kubelet
+- name: Kerbernetes | Install kubeadm kubectl kubelet
   become: yes
   apt: name={{ item }} state=present
   with_items:
@@ -7,22 +7,22 @@
   - kubelet
   - kubernetes-cni
 
-- name: 更换 kubelet pod-infra-container-image
+- name: Kerbernetes | Config kubelet pod-infra-container-image
   become: yes
   lineinfile:
     dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     insertbefore: '^ExecStart=$'
-    line: 'Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=dockerhub.aysaas.com/kubernetes/pause-amd64:3.1"'
+    line: 'Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1"'
     state: present
 
-- name: Install nfs-clinet for nsf-storage
+- name: Kerbernetes | Install nfs-clinet for nsf-storage
   become: yes
   apt: name={{ item }} state=present
   with_items:
   - nfs-common
   tags: install-nfs
 
-- name: Disable Swap | /etc/fstab
+- name: Kerbernetes | Disable Swap - /etc/fstab
   become: yes
   replace:
     dest: /etc/fstab
@@ -31,7 +31,7 @@
     backup: yes
   tags: fstab
 
-- name: Disable Swap | /etc/sysctl.d/k8s.conf
+- name: Kerbernetes | Disable Swap - /etc/sysctl.d/k8s.conf
   become: yes
   lineinfile:
     dest: /etc/sysctl.d/k8s.conf
@@ -40,7 +40,21 @@
     state: present
   tags: k8s-conf
 
-- name: Disable Swap | sysctl
+- name: Kerbernetes | Disable Swap - sysctl
   become: yes
   shell: sysctl -p /etc/sysctl.d/k8s.conf && swapoff -a
   tags: swapoff
+
+- name: Kerbernetes | Prepare kubeadm.conf
+  become: yes
+  copy: src=kubeadm.conf dest=/root/kubeadm.conf mode=0644
+  tags: kubeadmconf
+
+- name: Kerbernetes | Prepare flannel.conf
+  become: yes
+  copy: src=kube-flannel.yml dest=$HOME/kube-flannel.yml mode=0644
+  tags: flannel-yaml
+
+#- name: Kerbernetes | iptables settings
+#  become: yes
+#  shell: grep "^net.bridge.bridge-nf-call-arptables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-arptables = 1" >> /etc/sysctl.conf; grep "^net.bridge.bridge-nf-call-iptables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-iptables = 1" >> /etc/sysctl.conf; grep "^net.bridge.bridge-nf-call-ip6tables" /etc/sysctl.conf >>/dev/null || echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.conf; sysctl -p >>/dev/null
