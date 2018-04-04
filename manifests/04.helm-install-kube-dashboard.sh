@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
+# version: 0.4.1
+# appVersion: 1.7.1
+
 NAME=kubernetes-dashboard
+
 
 if [ ${1}x == "delx" ]; then
     helm del --purge ${NAME}
@@ -9,7 +13,7 @@ else
         echo "请指定域名！域名建议：kube-dashboard.az[3].aysaas.com"
     fi
 
-    helm install -n ${NAME} stable/kubernetes-dashboard \
+    helm install -n ${NAME} aysaas/kubernetes-dashboard --version 0.4.1 \
         --namespace kube-system \
         --set ingress.enabled=true \
         --set rbac.create=true \
