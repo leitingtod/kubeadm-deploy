@@ -25,7 +25,12 @@
     copy: src=bin/helm-v2.8.1 dest=/usr/local/bin/helm mode=0755
     tags: charts
 
+  - name: helm package charts
+    become: yes
+    shell: export HELM_HOME=/opt/helm-repo/.helm && cd /opt/helm-repo/charts && helm package qycloud && rm -rf qycloud
+    tags: charts
+
   - name: 启动 Charts Nginx Server
     become: yes
-    shell: export HELM_HOME=/opt/helm-repo/.helm && cd /opt/helm-repo/charts && helm init --client-only --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts && helm package qycloud && rm -rf qycloud && cd /opt/helm-repo && helm repo index charts --url http://charts.aysaas.com:8079 && docker-compose down && docker-compose up -d
+    shell: export HELM_HOME=/opt/helm-repo/.helm && cd /opt/helm-repo && helm repo index charts --url http://charts.aysaas.com:8079 && docker-compose down && docker-compose up -d
     tags: charts
