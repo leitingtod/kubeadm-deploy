@@ -1,28 +1,33 @@
 - hosts:
   - ftp
   tasks:
-  - name: prepare charts dirs
+  - name: prepare charts directories
     become: yes
     file: name={{ item }} state=directory
     with_items:
     - /opt/helm-repo/charts
     tags: charts
 
-  - name: 上传 docker-compose.yaml
+  - name: upload docker-compose.yaml
     become: yes
     copy: src={{ item }} dest=/opt/helm-repo/{{ item.split('/')[-1] }} mode=0644
     with_fileglob:
     - manifests/helm/repository/*
     tags: charts
 
-  - name: 上传 qycloud chart
+  - name: upload qycloud chart
     become: yes
     copy: src=manifests/qycloud dest=/opt/helm-repo/charts mode=0644
     tags: charts
 
-  - name: 上传 helm
+  - name: upload helm
     become: yes
     copy: src=bin/helm-v2.8.1 dest=/usr/local/bin/helm mode=0755
+    tags: charts
+
+  - name: helm init
+    become: yes
+    shell: export HELM_HOME=/opt/helm-repo/.helm && helm init --client-only --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
     tags: charts
 
   - name: helm package charts
