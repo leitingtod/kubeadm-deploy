@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+# version: 0.8.2
+
 NAME=influxdb
+
 
 if [ ${1}x == "delx" ]; then
     helm del --purge ${NAME}

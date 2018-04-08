@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# harbor 1.4.0
+
 kubectl create secret docker-registry harbor-registry-secret \
     --docker-server=dockerhub.aysaas.com \
     --docker-username=push \

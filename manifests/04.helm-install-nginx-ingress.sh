@@ -9,7 +9,7 @@ NAME=nginx-ingress
 if [ ${1}x == "delx" ]; then
     helm del --purge ${NAME}
 else
-    helm install --name ${NAME} aysaas/nginx-ingress -v 0.8.8 \
+    helm install --name ${NAME} aysaas/nginx-ingress --version 0.8.8 \
         --namespace kube-system \
         --set rbac.create=true \
         --set controller.service.type=NodePort \

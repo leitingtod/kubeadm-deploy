@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+# version: 0.2.7
+
 NAME=heapster
+
 
 if [ ${1}x == "delx" ]; then
     helm del --purge ${NAME}
