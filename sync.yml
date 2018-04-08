@@ -19,3 +19,21 @@
     - bin/*.conf
     - bin/helm-*
     tags: local
+
+- hosts:
+  - ftp
+  tasks:
+  - name: sync config files to ftp
+    become: yes
+    copy: src={{ item }} dest=/srv/ftp/{{ item.split('/')[-1] }} mode=0644
+    with_fileglob:
+    - roles/prepare/files/alias.rc
+    - bin/docker-compose-*
+    - bin/*.conf
+    - bin/helm-*
+    tags: ftp
+
+  - name: update to latest version
+    become: yes
+    shell: cd /srv/ftp && mv helm-* helm && mv docker-compose-* docker-compose
+    tags: ftp
