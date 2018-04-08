@@ -1,1 +1,1 @@
-kubeadm_join: kubeadm join 192.168.0.226:6443 --token hlv6qg.gj3obhdb6h7o3b74 --discovery-token-ca-cert-hash sha256:c348090cd810fd85acbc976c6250dc4d943d43adaa2e97a81fa02a2dd030a62c
+kubeadm_join:  kubeadm join 192.168.0.226:6443 --token ihis1x.gpb81jx7pwivfmj4 --discovery-token-ca-cert-hash sha256:bdf1e4aef29256e98268891e26e6f94ee1df7dd79d5da33d443485893f3eaf66
