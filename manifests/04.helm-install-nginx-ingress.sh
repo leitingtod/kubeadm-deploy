@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-#version: 0.8.8
+#version: 0.8.9
 #appVersion: 0.9.0-beta.15
+
+#version: 0.9.5 appVersion: 0.10.2 error: nginx-ingress-controller:0.10.2 not exist in gcr or aliyun
 
 NAME=nginx-ingress
 
@@ -9,7 +11,7 @@ NAME=nginx-ingress
 if [ ${1}x == "delx" ]; then
     helm del --purge ${NAME}
 else
-    helm install --name ${NAME} aysaas/nginx-ingress --version 0.8.8 \
+    helm install --name ${NAME} stable/nginx-ingress --version 0.8.9 \
         --namespace kube-system \
         --set rbac.create=true \
         --set controller.service.type=NodePort \
