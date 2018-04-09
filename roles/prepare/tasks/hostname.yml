@@ -2,7 +2,7 @@
   become: yes
   hostname:
     name: "{{ NODE_NAME }}"
-  tags: set-hostname
+  tags: hostnmae, set-hostname
 
 - name: Hosts | Add hostname to /etc/hosts
   become: yes
@@ -11,7 +11,7 @@
     regexp: '^127\.0\.0\.1[ \t]+localhost'
     line: '127.0.0.1 localhost {{ NODE_NAME }}'
     state: present
-  tags: set-hostname
+  tags: hostname, set-hostname
 
 - name: Hosts | Add cluster node to /etc/hosts
   become: yes
@@ -25,4 +25,4 @@
     create: yes
     backup: yes
     marker: "# Ansible Inventory Hosts {mark}"
-  tags: set-hosts
+  tags: hostname, set-hosts
