@@ -23,9 +23,24 @@
 - hosts:
   - ftp
   tasks:
-  - name: sync config files to ftp
+  - name: Charts | upload qycloud chart
     become: yes
-    copy: src={{ item }} dest=/srv/ftp/{{ item.split('/')[-1] }} mode=0644
+    copy: src=manifests/qycloud dest=/opt/helm-repo/charts mode=0644
+    tags: charts
+
+  - name: Charts | package qycloud chart
+    become: yes
+    shell: export HELM_HOME=/opt/helm-repo/.helm && cd /opt/helm-repo/charts && helm package qycloud && rm -rf qycloud
+    tags: charts
+
+  - name: Charts | update repo index
+    become: yes
+    shell: export HELM_HOME=/opt/helm-repo/.helm && cd /opt/helm-repo && helm repo index charts --url http://charts.aysaas.com:8079
+    tags: charts
+
+  - name: FTP | sync config files
+    become: yes
+    copy: src={{ item }} dest=/opt/ftpd/data/{{ item.split('/')[-1] }} mode=0644
     with_fileglob:
     - roles/prepare/files/alias.rc
     - bin/docker-compose-*
@@ -33,7 +48,7 @@
     - bin/helm-*
     tags: ftp
 
-  - name: update to latest version
+  - name: FTP | update bins version
     become: yes
-    shell: cd /srv/ftp && mv helm-* helm && mv docker-compose-* docker-compose
+    shell: cd /opt/ftpd/data/ && mv helm-* helm && mv docker-compose-* docker-compose
     tags: ftp
