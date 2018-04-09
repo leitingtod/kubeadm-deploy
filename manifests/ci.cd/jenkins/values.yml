@@ -2,9 +2,10 @@ Master:
   Image: "jenkins/jenkins"
   ImageTag: "lts-alpine" 
   ImagePullSecre: "harbor-registry-secret"
-  ServiceType: ClusterIP
   AdminPassword: admin123
   HostName: "jenkins.aysaas.com"
+  InstallPlugins: {}
+  ServiceType: ClusterIP
   Ingress:
     Annotations:
       kubernetes.io/ingress.class: nginx
