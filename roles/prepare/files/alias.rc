@@ -1,5 +1,6 @@
 PS1='\[\033[32m\]\u@\h \[\033[35m\] \[\033[33m\]\w\[\033[36m\]\[\033[0m\]\n$ '
 
+alias wa='watch '
 alias br='sudo brctl'
 alias et='emacsclient -t'
 alias ec='emacsclient -c&'
