@@ -32,9 +32,9 @@
     become: yes
     shell: hostname
     register: shell_result
-    tags: get-hostname
+    tags: hostname, get-hostname
 
   - name: Status | Check hostname
     debug:
       var: shell_result.stdout_lines
-    tags: get-hostname
+    tags: hostname, get-hostname
