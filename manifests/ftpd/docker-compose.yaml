@@ -1,0 +1,9 @@
+version: '3'
+services:
+  ftp:
+    image: inanimate/vsftpd-anon:1.0
+    network_mode: "host"
+    volumes:
+      - ./data:/var/ftp
+    privileged: true
+    restart: always
