@@ -1,0 +1,23 @@
+Master:
+  Image: "jenkins/jenkins"
+  ImageTag: "lts-alpine" 
+  ImagePullSecre: "harbor-registry-secret"
+  ServiceType: ClusterIP
+  AdminPassword: admin123
+  HostName: "jenkins.aysaas.com"
+  Ingress:
+    Annotations:
+      kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+
+Agent:
+  Image: "jenkins/jnlp-slave"
+  ImageTag: "alpine"
+  ImagePullSecret: "harbor-registry-secret"
+
+Persistence:
+  Enabled: true
+  ExistingClaim: "jenkins-jenkins"
+
+rbac:
+  install: true
