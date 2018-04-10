@@ -58,6 +58,15 @@
     state: present
   tags: config-alias
 
+- name: Config | Enable alias
+  become: yes
+  lineinfile:
+    dest: /home/anyuan/.bashrc
+    regexp: '^.*alias\.sh.*$'
+    line: 'source /etc/profile.d/alias.sh'
+    state: present
+  tags: config-alias
+
 - name: Config | Set gitconfig
   become: yes
   copy: src=gitconfig dest=/root/.gitconfig mode=0644
