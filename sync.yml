@@ -16,6 +16,7 @@
     copy: src={{ item }} dest={{ playbook_dir.replace('kubeadm-deploy', '') }}docker-dev/bastion/{{ item.split('/')[-1] }} mode=0644 owner=anyuan group=anyuan
     with_fileglob:
     - roles/prepare/files/alias.rc
+    - roles/prepare/files/gitconfig
     - bin/*.conf
     - bin/helm-*
     tags: local
@@ -46,6 +47,7 @@
     copy: src={{ item }} dest=/opt/ftpd/data/{{ item.split('/')[-1] }} mode=0644
     with_fileglob:
     - roles/prepare/files/alias.rc
+    - roles/prepare/files/gitconfig
     - bin/docker-compose-*
     - bin/*.conf
     - bin/helm-*
