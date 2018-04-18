@@ -21,6 +21,10 @@
     - bin/helm-*
     tags: local
 
+  - name: sync config files in docker-dev
+    shell: cd {{ playbook_dir.replace('kubeadm-deploy', '') }}docker-dev/; cp bastion/gitconfig php/
+    tags: local
+
 - hosts:
   - ftp
   tasks:
