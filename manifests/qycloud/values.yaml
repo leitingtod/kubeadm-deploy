@@ -15,9 +15,17 @@ frontend:
 
   php:
     image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.0-ubuntu-14.04"
+    imageTag: "7.1-ubuntu-14.04"
     pullPolicy: Always
     containerPort: 9000
+    env:
+      mongoAppDBName: master
+      mongoAppUser: master
+      mongoAppPass: L9jD7srDBdS7Nfob
+
+      mysqlAppDBName: master
+      mysqlAppUser: master
+      mysqlAppPass: pZdxysqJX4bK4VrB
 
   node:
     containerPort: 5000
@@ -26,7 +34,7 @@ frontend:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
     imageTag: "master"
     pullPolicy: Always
-    update: "true"
+    update: "false"
 
   service:
     type: ClusterIP
@@ -55,7 +63,7 @@ beanstalkd:
 mongo:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/mongo"
-  imageTag: "3.4.10-jessie"
+  imageTag: "test"
   pullPolicy: Always
   containerPort: 27017
   service:
@@ -65,18 +73,11 @@ mongo:
     requests:
       cpu: 100m
       memory: 100Mi
-  env:
-    auth: "no"
-    adminPassword: root
-    adminUser: root
-    appDatabase: qycloud
-    appDatabaseUser: root
-    appDatabasePassword: root
 
 mysql:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/mysql"
-  imageTag: "5.6.38-jessie"
+  imageTag: "test"
   pullPolicy: Always
   containerPort: 3306
   service:
@@ -86,9 +87,6 @@ mysql:
     requests:
       cpu: 100m
       memory: 100Mi
-  env:
-    appDatabase: master
-    rootPassword: 123456
 
 redis:
   replicaCount: 1
@@ -105,7 +103,7 @@ redis:
       memory: 100Mi
 
 persistence:
-  enabled: true
+  enabled: false
   ## If defined, PVC must be created manually before volume will be bound
 #  existingClaim: "saas-saas"
 
