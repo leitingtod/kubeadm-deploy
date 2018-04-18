@@ -43,29 +43,8 @@ spec:
           imagePullPolicy: {{ .Values.mysql.pullPolicy }}
           ports:
           - containerPort: {{ .Values.mysql.containerPort }}
-          env:
-          - name: MYSQL_DATABASE
-            value: {{ .Values.mysql.env.appDatabase }}
-          - name: MYSQL_ROOT_PASSWORD
-            value: {{ .Values.mysql.env.rootPassword | quote }}
           resources:
 {{ toYaml .Values.mysql.resources | indent 12 }}
-          volumeMounts:
-            - name: saas-home
-              mountPath: "/var/lib/mysql"
-              subPath: "data/mysql"
-              readOnly: false
-      volumes:
-{{- if .Values.persistence.volumes }}
-{{ toYaml .Values.persistence.volumes | indent 6 }}
-{{- end }}
-      - name: saas-home
-      {{- if .Values.persistence.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}
-      {{- else }}
-        emptyDir: {}
-      {{- end -}}
 
 {{- if .Values.imagePullSecrets }}
       imagePullSecrets:

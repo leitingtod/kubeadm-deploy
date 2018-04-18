@@ -110,8 +110,8 @@ spec:
             name: node-cgi
 
           env:
-          - name: MYSQL_ROOT_PASSWORD
-            value: {{ .Values.mysql.env.rootPassword | quote }}
+          - name: APP_NAME
+            value: {{ .Release.Name }}
           - name: QUEUE_HOST
             value: {{ .Release.Name }}-beanstalkd
           - name: MONGO_HOST
@@ -120,8 +120,21 @@ spec:
             value: {{ .Release.Name }}-mysql
           - name: REDIS_HOST
             value: {{ .Release.Name }}-redis
-          - name: APP_NAME
-            value: {{ .Release.Name }}
+
+          - name: MONGO_APP_DBNAME
+            value: {{ .Values.frontend.php.env.mongoAppDBName | quote }}
+          - name: MONGO_APP_USER
+            value: {{ .Values.frontend.php.env.mongoAppUser | quote }}
+          - name: MONGO_APP_PASS
+            value: {{ .Values.frontend.php.env.mongoAppPass | quote }}
+
+          - name: MYSQL_APP_DBNAME
+            value: {{ .Values.frontend.php.env.mysqlAppDBName | quote }}
+          - name: MYSQL_APP_USER
+            value: {{ .Values.frontend.php.env.mysqlAppUser | quote }}
+          - name: MYSQL_APP_PASS
+            value: {{ .Values.frontend.php.env.mysqlAppPass | quote }}
+
           resources:
 {{ toYaml .Values.frontend.resources | indent 12 }}
           volumeMounts:

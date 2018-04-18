@@ -43,36 +43,8 @@ spec:
           imagePullPolicy: {{ .Values.mongo.pullPolicy }}
           ports:
           - containerPort: {{ .Values.mongo.containerPort }}
-          env:
-            - name: AUTH
-              value: {{ .Values.mongo.env.auth | quote }}
-            - name: MONGODB_ADMIN_PASS
-              value: {{ .Values.mongo.env.adminPassword }}
-            - name: MONGODB_ADMIN_USER
-              value: {{ .Values.mongo.env.adminUser }}
-            - name: MONGODB_APPLICATION_DATABASE
-              value: {{ .Values.mongo.env.appDatabase }}
-            - name: MONGODB_APPLICATION_PASS
-              value: {{ .Values.mongo.env.appDatabasePassword }}
-            - name: MONGODB_APPLICATION_USER
-              value: {{ .Values.mongo.env.appDatabaseUser }}
           resources:
 {{ toYaml .Values.mongo.resources | indent 12 }}
-          volumeMounts:
-            - name: saas-home
-              mountPath: "/data"
-              subPath: "data/mongo"
-      volumes:
-{{- if .Values.persistence.volumes }}
-{{ toYaml .Values.persistence.volumes | indent 6 }}
-{{- end }}
-      - name: saas-home
-      {{- if .Values.persistence.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}
-      {{- else }}
-        emptyDir: {}
-      {{- end -}}
 
 {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
