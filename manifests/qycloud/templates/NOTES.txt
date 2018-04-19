@@ -19,3 +19,6 @@
 
 2. Add DNS-Records to localhost's /etc/hosts Or remote DNS-Server
   dns.sh add {{ $serverDomain }}
+
+3. Add SSH PublicKey to your gitlab projects
+  kubectl get secret git-sshkey-default -o json | jq -r ".data.ssh_publickey"
