@@ -140,7 +140,9 @@ spec:
           volumeMounts:
             - name: saas-home
               mountPath: "/opt"
-
+            - name: saas-git-sshkey
+              readOnly: true
+              mountPath: "/home/anyuan/.ssh"
 
       volumes:
 {{- if .Values.persistence.volumes }}
@@ -149,6 +151,9 @@ spec:
       - name: saas-config
         configMap:
           name: {{ .Release.Name }}-config
+      - name: saas-git-sshkey
+        secret:
+          secretName: git-sshkey-default
       - name: saas-home
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
