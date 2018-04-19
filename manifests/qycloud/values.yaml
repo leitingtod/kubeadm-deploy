@@ -15,7 +15,7 @@ frontend:
 
   php:
     image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.1-ubuntu-14.04"
+    imageTag: "7.1-ubuntu-14.04-debug"
     pullPolicy: Always
     containerPort: 9000
     env:
@@ -26,6 +26,11 @@ frontend:
       mysqlAppDBName: master
       mysqlAppUser: master
       mysqlAppPass: pZdxysqJX4bK4VrB
+
+      snycSource: false
+      saasBranch: master
+      orgBranch: master
+      nodeSaasBranch: master
 
   node:
     containerPort: 5000

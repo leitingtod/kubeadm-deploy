@@ -52,7 +52,6 @@ spec:
           volumeMounts:
             - name: saas-home
               mountPath: "/opt"
-
           env:
           - name: UPDATE
             value: {{ .Values.frontend.source.update | quote }}
@@ -135,14 +134,22 @@ spec:
           - name: MYSQL_APP_PASS
             value: {{ .Values.frontend.php.env.mysqlAppPass | quote }}
 
+          - name: SYNC_SOURCE
+            value: {{ .Values.frontend.php.env.syncSource | quote }}
+          - name: SAAS_BRANCH
+            value: {{ .Values.frontend.php.env.saasBranch | quote }}
+          - name: ORG_BRANCH
+            value: {{ .Values.frontend.php.env.orgBranch | quote }}
+          - name: NODE_SAAS_BRANCH
+            value: {{ .Values.frontend.php.env.nodeSaasBranch | quote }}
+
           resources:
 {{ toYaml .Values.frontend.resources | indent 12 }}
           volumeMounts:
             - name: saas-home
               mountPath: "/opt"
             - name: saas-git-sshkey
-              readOnly: true
-              mountPath: "/home/anyuan/.ssh"
+              mountPath: "/var/ssh-config"
 
       volumes:
 {{- if .Values.persistence.volumes }}
