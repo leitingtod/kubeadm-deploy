@@ -11,7 +11,7 @@ spec:
   type: {{ .Values.mongo.service.type }}
   ports:
     - port: {{ .Values.mongo.service.port }}
-      targetPort: {{ .Values.mongo.service.port }}
+      targetPort: {{ .Values.mongo.containerPort }}
   selector:
     app: {{ .Release.Name }}-mongo
     release: {{ .Release.Name }}

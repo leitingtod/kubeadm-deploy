@@ -11,7 +11,7 @@ spec:
   type: {{ .Values.mysql.service.type }}
   ports:
     - port: {{ .Values.mysql.service.port }}
-      targetPort: {{ .Values.mysql.service.port }}
+      targetPort: {{ .Values.mysql.containerPort }}
   selector:
     app: {{ .Release.Name }}-mysql
     release: {{ .Release.Name }}

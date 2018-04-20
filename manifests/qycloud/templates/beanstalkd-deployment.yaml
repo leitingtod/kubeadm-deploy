@@ -11,7 +11,7 @@ spec:
   type: {{ .Values.beanstalkd.service.type }}
   ports:
     - port: {{ .Values.beanstalkd.service.port }}
-      targetPort: {{ .Values.beanstalkd.service.port }}
+      targetPort: {{ .Values.beanstalkd.containerPort }}
   selector:
     app: {{ .Release.Name }}-beanstalkd
     release: {{ .Release.Name }}

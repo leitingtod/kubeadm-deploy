@@ -11,7 +11,7 @@ spec:
   type: {{ .Values.redis.service.type }}
   ports:
     - port: {{ .Values.redis.service.port }}
-      targetPort: {{ .Values.redis.service.port }}
+      targetPort: {{ .Values.redis.containerPort }}
   selector:
     app: {{ .Release.Name }}-redis
     release: {{ .Release.Name }}

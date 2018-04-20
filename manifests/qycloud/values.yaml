@@ -15,7 +15,7 @@ frontend:
 
   php:
     image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.1-ubuntu-14.04-debug"
+    imageTag: "7.1-ubuntu-14.04"
     pullPolicy: Always
     containerPort: 9000
     env:
