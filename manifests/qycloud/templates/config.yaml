@@ -58,9 +58,6 @@ data:
       }
 
       location ~ \.php$ {
-        if ($request_uri ~ "^/service_org") {
-          root /opt/org/public;
-        }
         fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
