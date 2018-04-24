@@ -21,4 +21,6 @@ else
         --set ingress.hosts[0]=${1} \
         --set image.repository=dockerhub.aysaas.com/kubernetes/kubernetes-dashboard-amd64 \
         --set image.tag=v1.8.3
+
+    kubectl patch -n kube-system deploy ${NAME} -p "$(cat ./tolerations.json)"
 fi

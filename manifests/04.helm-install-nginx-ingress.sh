@@ -21,4 +21,8 @@ else
         --set controller.image.tag=0.9.0-beta.15 \
         --set defaultBackend.image.repository=dockerhub.aysaas.com/kubernetes/defaultbackend \
         --set defaultBackend.image.tag=1.4
+
+    kubectl patch -n kube-system deploy ${NAME}-nginx-ingress-controller -p "$(cat ./tolerations.json)"
+    kubectl patch -n kube-system deploy ${NAME}-nginx-ingress-default-backend -p "$(cat ./tolerations.json)"
+
 fi

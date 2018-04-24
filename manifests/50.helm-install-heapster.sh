@@ -12,6 +12,8 @@ else
         --namespace kube-system \
         --set rbac.create=true \
         --set eventer.enabled=true
+
+    kubectl patch -n kube-system deploy ${NAME}-heapster -p "$(cat ./tolerations.json)"
 fi
 
 #        --set image.repository=dockerhub.aysaas.com/kubernetes/heapster \
