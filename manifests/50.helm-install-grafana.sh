@@ -15,4 +15,6 @@ else
         --set server.persistentVolume.enabled=true \
         --set server.persistentVolume.storageClass="aysaas-nfs-once" \
         --set server.image=grafana/grafana:5.0.4
+
+    kubectl patch -n kube-system deploy ${NAME}-grafana -p "$(cat ./tolerations.json)"
 fi
