@@ -28,7 +28,9 @@ alias dkrmall='sudo docker rm $(sudo docker ps -q -f status=exited)'
 alias dkrmiall='sudo docker rmi $(sudo docker images -q -f dangling=true)'
 
 # 删除所有已经停止的容器和未打标签的镜像.
-alias dkcleanall='dkrmall || true && dkrmiall'
+alias dkcleanall='dkrmall || true && dkrmiall || true'
+
+alias dkprune='sudo docker container prune --force'
 
 alias kl='kubectl'
 alias kk='kubectl -n kube-system'

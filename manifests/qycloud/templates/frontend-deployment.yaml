@@ -1,4 +1,4 @@
-{{- $serverDomain := .Values.ingress.domain -}}
+{{- $serverDomain := .Values.ingress.domain | lower -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -142,6 +142,11 @@ spec:
             value: {{ .Values.frontend.php.env.orgBranch | quote }}
           - name: NODE_SAAS_BRANCH
             value: {{ .Values.frontend.php.env.nodeSaasBranch | quote }}
+
+          - name: VERBOSE
+            value: {{ .Values.frontend.php.env.verbose | quote }}
+          - name: FORCE_BUILD
+            value: {{ .Values.frontend.php.env.forceBuild | quote }}
 
           resources:
 {{ toYaml .Values.frontend.resources | indent 12 }}

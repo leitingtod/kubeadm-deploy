@@ -32,6 +32,9 @@ frontend:
       orgBranch: master
       nodeSaasBranch: master
 
+      verbose: false
+      forceBuild: false
+
   node:
     containerPort: 5000
 

@@ -1,6 +1,6 @@
 {{- if .Values.ingress.enabled -}}
 {{- $releaseName := .Release.Name -}}
-{{- $serverDomain := .Values.ingress.domain -}}
+{{- $serverDomain := .Values.ingress.domain | lower -}}
 {{- $servicePort := .Values.frontend.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
 apiVersion: extensions/v1beta1
