@@ -1,4 +1,4 @@
-{{- $serverDomain := .Values.ingress.domain -}}
+{{- $serverDomain := .Values.ingress.domain | lower -}}
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.master }}.{{ $serverDomain }}{{ $.Values.ingress.path }}

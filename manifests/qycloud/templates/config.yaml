@@ -2,7 +2,7 @@
 {{- $phpFastCGIPort := .Values.frontend.php.containerPort -}}
 {{- $nodeFastCGIHost := "127.0.0.1" -}}
 {{- $nodeFastCGIPort := .Values.frontend.node.containerPort -}}
-{{- $serverDomain := .Values.ingress.domain -}}
+{{- $serverDomain := .Values.ingress.domain | lower -}}
 {{- $masterServerName := .Values.ingress.hosts.master -}}
 {{- $staticServerName := .Values.ingress.hosts.static -}}
 {{- $fileioServerName := .Values.ingress.hosts.fileio -}}

@@ -25,6 +25,11 @@
     shell: cd {{ playbook_dir.replace('kubeadm-deploy', '') }}docker-dev/; cp bastion/gitconfig php/
     tags: local
 
+  - name: sync alias.rc to /etc/profile.d/alias.sh
+    become: yes
+    shell: cd {{ playbook_dir.replace('kubeadm-deploy', '') }}docker-dev/; cp bastion/alias.rc /etc/profile.d/alias.sh
+    tags: local
+
 - hosts:
   - ftp
   tasks:
