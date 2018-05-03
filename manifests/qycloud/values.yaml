@@ -52,7 +52,9 @@ frontend:
     requests:
       cpu: 100m
       memory: 100Mi
-
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
 
 beanstalkd:
   replicaCount: 1
@@ -63,10 +65,6 @@ beanstalkd:
   service:
     type: ClusterIP
     port: 11300
-  resources:
-    requests:
-      cpu: 100m
-      memory: 100Mi
 
 mongo:
   replicaCount: 1
@@ -81,6 +79,9 @@ mongo:
     requests:
       cpu: 100m
       memory: 100Mi
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
 
 mysql:
   replicaCount: 1
@@ -95,6 +96,9 @@ mysql:
     requests:
       cpu: 100m
       memory: 100Mi
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
 
 redis:
   replicaCount: 1
@@ -105,10 +109,6 @@ redis:
   service:
     type: ClusterIP
     port: 6379
-  resources:
-    requests:
-      cpu: 100m
-      memory: 100Mi
 
 persistence:
   enabled: false
