@@ -7,14 +7,22 @@
   - kubelet
   - kubernetes-cni
 
-# 执行多次无法保证唯一性，要处理无，已有2种情况
+- name: Kerbernetes | Config kubelet pod-infra-container-image
+  become: yes
+  lineinfile:
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    regexp: '^Environment="KUBELET_EXTRA_ARGS='
+    state: absent
+  tags: config-kubelet
+
 - name: Kerbernetes | Config kubelet pod-infra-container-image
   become: yes
   lineinfile:
     dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     insertbefore: '^ExecStart=$'
-    line: 'Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1"'
+    line: 'Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1 --system-reserved=cpu=200m,memory=250Mi --kube-reserved=cpu=200m,memory=250Mi --eviction-hard=memory.available<500Mi,nodefs.available<5Gi,imagefs.available<5Gi"'
     state: present
+  tags: config-kubelet
 
 - name: Kerbernetes | Install nfs-clinet for nsf-storage
   become: yes
