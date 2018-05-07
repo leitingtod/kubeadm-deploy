@@ -37,6 +37,8 @@ frontend:
 
   node:
     containerPort: 5000
+    # If defined, user can access from internet
+#    externalPort: 8040
 
   source:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
@@ -112,7 +114,7 @@ redis:
 
 persistence:
   enabled: false
-  ## If defined, PVC must be created manually before volume will be bound
+   # If defined, PVC must be created manually before volume will be bound
 #  existingClaim: "saas-saas"
 
   accessMode: ReadWriteMany
