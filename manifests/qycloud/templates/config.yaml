@@ -2,6 +2,7 @@
 {{- $phpFastCGIPort := .Values.frontend.php.containerPort -}}
 {{- $nodeFastCGIHost := "127.0.0.1" -}}
 {{- $nodeFastCGIPort := .Values.frontend.node.containerPort -}}
+{{- $externalPort := .Values.frontend.node.externalPort -}}
 {{- $serverDomain := .Values.ingress.domain | lower -}}
 {{- $masterServerName := .Values.ingress.hosts.master -}}
 {{- $staticServerName := .Values.ingress.hosts.static -}}
@@ -21,6 +22,11 @@ metadata:
 data:
   aysaas.conf: |-
     server {
+      listen 80;
+{{- if .Values.frontend.node.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
+
       server_name {{ $masterServerName }}.{{$serverDomain}};
 
       root /opt/saas/public;
@@ -93,6 +99,11 @@ data:
     }
 
     server {
+      listen 80;
+{{- if .Values.frontend.node.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
+
       server_name {{ $staticServerName }}.{{$serverDomain}};
 
       root /opt/saas/public;
@@ -115,6 +126,11 @@ data:
     }
 
     server {
+      listen 80;
+{{- if .Values.frontend.node.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
+
       server_name {{ $fileioServerName }}.{{$serverDomain}};
       root /opt/saas/public;
       client_max_body_size 128m;
@@ -134,6 +150,11 @@ data:
     }
 
     server {
+      listen 80;
+{{- if .Values.frontend.node.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
+
       server_name {{ $xhprofServerName }}.{{$serverDomain}};
       #auth_basic "[Tips]";
       #auth_basic_user_file /etc/nginx/conf.d/[USER];
@@ -155,6 +176,11 @@ data:
     }
 
     server {
+      listen 80;
+{{- if .Values.frontend.node.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
+
       server_name {{ $queueConsoleServerName }}.{{$serverDomain}};
       #auth_basic "[Tips]";
       #auth_basic_user_file /etc/nginx/conf.d/[USER];
@@ -184,16 +210,21 @@ data:
     }
 
     server {
-        server_name {{ $nodesaasServerName }}.{{$serverDomain}};
+      listen 80;
+{{- if .Values.frontend.node.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
 
-        root /opt/node-saas/public/dist;
+      server_name {{ $nodesaasServerName }}.{{$serverDomain}};
 
-        error_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-error.log error;
-        access_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-access.log combined;
+      root /opt/node-saas/public/dist;
 
-        location ~* \.(eot|ttf|woff|woff2)$ {
-            add_header Access-Control-Allow-Origin *;
-        }
+      error_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-error.log error;
+      access_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-access.log combined;
+
+      location ~* \.(eot|ttf|woff|woff2)$ {
+          add_header Access-Control-Allow-Origin *;
+      }
     }
   nginx.conf: |-
     # For more information on configuration, see:
@@ -348,9 +379,15 @@ data:
 
     module.exports = {
         port: {{ $nodeFastCGIPort }},
+{{- if .Values.frontend.node.externalPort }}
+        api: 'http://{{ $masterServerName }}.{{$serverDomain}}:{{$externalPort}}/',
+        static: 'http://{{ $nodesaasServerName }}.{{$serverDomain}}:{{$externalPort}}',
+        fileio: 'http://{{ $fileioServerName }}.{{$serverDomain}}:{{$externalPort}}',
+{{- else }}
         api: 'http://{{ $masterServerName }}.{{$serverDomain}}/',
         static: 'http://{{ $nodesaasServerName }}.{{$serverDomain}}',
         fileio: 'http://{{ $fileioServerName }}.{{$serverDomain}}',
+{{- end }}
 
         logger: {
             filename: 'log/node-saas.log'
