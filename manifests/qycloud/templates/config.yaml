@@ -7,9 +7,11 @@
 {{- $masterServerName := .Values.ingress.hosts.master -}}
 {{- $staticServerName := .Values.ingress.hosts.static -}}
 {{- $fileioServerName := .Values.ingress.hosts.fileio -}}
-{{- $xhprofServerName := .Values.ingress.hosts.xhprof -}}
 {{- $nodesaasServerName := .Values.ingress.hosts.nodesaas -}}
+{{- $xhprofServerName := .Values.ingress.hosts.xhprof -}}
 {{- $queueConsoleServerName := .Values.ingress.hosts.queue -}}
+{{- $mysqlConsoleServerName := .Values.ingress.hosts.mysql -}}
+{{- $redisConsoleServerName := .Values.ingress.hosts.redis -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -155,6 +157,24 @@ data:
       listen {{$externalPort}};
 {{- end }}
 
+      server_name {{ $nodesaasServerName }}.{{$serverDomain}};
+
+      root /opt/node-saas/public/dist;
+
+      error_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-error.log error;
+      access_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-access.log combined;
+
+      location ~* \.(eot|ttf|woff|woff2)$ {
+          add_header Access-Control-Allow-Origin *;
+      }
+    }
+
+    server {
+      listen 80;
+{{- if .Values.frontend.node.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
+
       server_name {{ $xhprofServerName }}.{{$serverDomain}};
       #auth_basic "[Tips]";
       #auth_basic_user_file /etc/nginx/conf.d/[USER];
@@ -215,15 +235,73 @@ data:
       listen {{$externalPort}};
 {{- end }}
 
-      server_name {{ $nodesaasServerName }}.{{$serverDomain}};
+      server_name {{ $redisConsoleServerName }}.{{$serverDomain}};
+      #auth_basic "[Tips]";
+      #auth_basic_user_file /etc/nginx/conf.d/[USER];
+      error_log /var/log/nginx/beanstalk-console-error.log error;
+      access_log /var/log/nginx/beanstalk-console-access.log combined;
 
-      root /opt/node-saas/public/dist;
+      root /opt/redis-console;
 
-      error_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-error.log error;
-      access_log /var/log/nginx/{{ $nodesaasServerName }}.{{$serverDomain}}-access.log combined;
+      index index.php index.html;
 
-      location ~* \.(eot|ttf|woff|woff2)$ {
-          add_header Access-Control-Allow-Origin *;
+      location / {
+      }
+
+      location ~* \.(css)$ {
+        add_header Content-Type text/css;
+      }
+
+      location ~* \.(eot|ttf|woff)$ {
+        add_header Access-Control-Allow-Origin *;
+      }
+
+      location ~ \.php$ {
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+    }
+
+    server {
+      listen 80;
+{{- if .Values.frontend.node.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
+
+      server_name {{ $mysqlConsoleServerName }}.{{$serverDomain}};
+      #auth_basic "[Tips]";
+      #auth_basic_user_file /etc/nginx/conf.d/[USER];
+      error_log /var/log/nginx/beanstalk-console-error.log error;
+      access_log /var/log/nginx/beanstalk-console-access.log combined;
+
+      root /opt/mysql-console;
+
+      index index.php index.html;
+
+      location / {
+      }
+
+      location ~* \.(css)$ {
+        add_header Content-Type text/css;
+      }
+
+      location ~* \.(eot|ttf|woff)$ {
+        add_header Access-Control-Allow-Origin *;
+      }
+
+      location ~ \.php$ {
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+
+      location ~ /\. {
+          deny  all;
+      }
+
+      location ~ /(libraries|templates) {
+          deny all;
       }
     }
   nginx.conf: |-

@@ -148,6 +148,16 @@ spec:
           - name: FORCE_BUILD
             value: {{ .Values.frontend.php.env.forceBuild | quote }}
 
+          - name: REDIS_1_HOST
+            value: {{ .Release.Name }}-redis
+
+          - name: PMA_HOSTS
+            value: {{ .Release.Name }}-mysql
+          - name: PMA_USER
+            value: {{ .Values.frontend.php.env.mysqlAppUser | quote }}
+          - name: PMA_PASSWORD
+            value: {{ .Values.frontend.php.env.mysqlAppPass | quote }}
+
           resources:
 {{ toYaml .Values.frontend.resources | indent 12 }}
           volumeMounts:
