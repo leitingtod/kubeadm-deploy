@@ -1,7 +1,8 @@
 {{- $serverDomain := .Values.ingress.domain | lower -}}
-1. Get the application URL by running these commands:
+{{- $externalPort := .Values.frontend.node.externalPort -}}
+1. 应用访问地址：
 {{- if .Values.ingress.enabled }}
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.master }}.{{ $serverDomain }}{{ $.Values.ingress.path }}
+   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.master }}.{{ $serverDomain }}{{ $.Values.ingress.path }}
 {{- else if contains "NodePort" .Values.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "qycloud.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
@@ -17,8 +18,21 @@
   kubectl port-forward $POD_NAME 8080:80
 {{- end }}
 
-2. Add DNS-Records to localhost's /etc/hosts Or remote DNS-Server
-  dns.sh add {{ $serverDomain }}
+2. 添加域名至内网 DNS 服务器
+   dns.sh add {{ $serverDomain }}
 
-3. Add SSH PublicKey to your gitlab projects if not exist
-  kubectl get secret git-sshkey-default -o json | jq -r ".data.ssh_publickey"
+3. 添加 SSH 公钥到 git.qycloud.com.cn（若已添加，请忽略）
+   kubectl get secret git-sshkey-default -o json | jq -r ".data.ssh_publickey"
+
+4. 扩展工具访问地址：
+{{- if .Values.frontend.node.externalPort }}
+   xhprof            : http://xhprof.{{ $serverDomain }}:{{$externalPort}}
+   phpMyAdmin        : http://mysql.{{ $serverDomain }}:{{$externalPort}}
+   phpRedisAdmin     : http://redis.{{ $serverDomain }}:{{$externalPort}}
+   beanstalk console : http://queue.{{ $serverDomain }}:{{$externalPort}}
+{{- else }}
+   xhprof            : http://xhprof.{{ $serverDomain }}
+   phpMyAdmin        : http://mysql.{{ $serverDomain }}
+   phpRedisAdmin     : http://redis.{{ $serverDomain }}
+   beanstalk console : http://queue.{{ $serverDomain }}
+{{- end }}

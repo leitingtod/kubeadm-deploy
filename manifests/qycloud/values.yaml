@@ -9,13 +9,13 @@ frontend:
   replicaCount: 1
   nginx:
     image: "dockerhub.aysaas.com/library/aysaas/nginx"
-    imageTag: "1.13.7-alpine"
+    imageTag: "1.13.7-alpine-1.2.1"
     pullPolicy: Always
     containerPort: 80
 
   php:
     image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.1-ubuntu-14.04"
+    imageTag: "7.1-ubuntu14.04-1.2.1"
     pullPolicy: Always
     containerPort: 9000
     env:
@@ -32,8 +32,8 @@ frontend:
       orgBranch: master
       nodeSaasBranch: master
 
-      verbose: false
-      forceBuild: false
+      verbose: ""
+      forceBuild: ""
 
   node:
     containerPort: 5000
@@ -42,7 +42,7 @@ frontend:
 
   source:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "master"
+    imageTag: "1.2.1-master-01e9c39c9e"
     pullPolicy: Always
     update: "false"
 
@@ -61,7 +61,7 @@ frontend:
 beanstalkd:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/beanstalkd"
-  imageTag: "1.10-alpine"
+  imageTag: "1.10-alpine-1.0.0"
   pullPolicy: Always
   containerPort: 11300
   service:
@@ -105,7 +105,7 @@ mysql:
 redis:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/redis"
-  imageTag: "4.0.6-alpine"
+  imageTag: "4.0.6-alpine-1.0.0"
   pullPolicy: Always
   containerPort: 6379
   service:
@@ -133,9 +133,11 @@ ingress:
     master: www
     static: static
     fileio: fileio
+    nodesaas: nodestatic
     xhprof: xhprof
     queue: queue
-    nodesaas: nodestatic
+    mysql: mysql
+    redis: redis
 
   tls: []
   #  - secretName: chart-example-tls
