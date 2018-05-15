@@ -62,4 +62,6 @@
     - bin/helm-*
     - bin/robo3t-*
     - bin/phpMyAdmin-*
+    - bin/BearyChat-*
+    - bin/ZendStudio-*
     tags: ftp
