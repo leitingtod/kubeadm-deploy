@@ -51,13 +51,27 @@
     shell: export HELM_HOME=/opt/helm-repo/.helm && cd /opt/helm-repo && helm repo index charts --url http://charts.aysaas.com:8079
     tags: charts
 
-  - name: FTP | sync files
+  - name: FTP | prepare directories
     become: yes
-    copy: src={{ item }} dest=/opt/ftpd/data/{{ item.split('/')[-1] }} mode=0644
+    file: name={{ item }} state=directory
+    with_items:
+    - /opt/ftpd/data/rc.d
+    - /opt/ftpd/data/packages
+    tags: ftp
+
+  - name: FTP | sync rc.d
+    become: yes
+    copy: src={{ item }} dest=/opt/ftpd/data/rc.d/{{ item.split('/')[-1] }} mode=0644
     with_fileglob:
     - roles/prepare/files/alias.rc
     - roles/prepare/files/gitconfig
     - bin/*.conf
+    tags: ftp
+
+  - name: FTP | sync packages
+    become: yes
+    copy: src={{ item }} dest=/opt/ftpd/data/packages/{{ item.split('/')[-1] }} mode=0644
+    with_fileglob:
     - bin/docker-compose-*
     - bin/helm-*
     - bin/robo3t-*
