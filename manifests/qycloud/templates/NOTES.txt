@@ -1,8 +1,12 @@
 {{- $serverDomain := .Values.ingress.domain | lower -}}
-{{- $externalPort := .Values.frontend.node.externalPort -}}
+{{- $externalPort := .Values.frontend.service.externalPort -}}
 1. 应用访问地址：
 {{- if .Values.ingress.enabled }}
-   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.master }}.{{ $serverDomain }}{{ $.Values.ingress.path }}
+  {{- if .Values.frontend.service.externalPort }}
+   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.portal }}.{{ $serverDomain }}:{{ $externalPort }}
+  {{- else }}
+   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.portal }}.{{ $serverDomain }}
+  {{- end }}
 {{- else if contains "NodePort" .Values.service.type }}
   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "qycloud.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
@@ -25,7 +29,7 @@
    kubectl get secret git-sshkey-default -o json | jq -r ".data.ssh_publickey"
 
 4. 扩展工具访问地址：
-{{- if .Values.frontend.node.externalPort }}
+{{- if .Values.frontend.service.externalPort }}
    xhprof            : http://xhprof.{{ $serverDomain }}:{{$externalPort}}
    phpMyAdmin        : http://mysql.{{ $serverDomain }}:{{$externalPort}}
    phpRedisAdmin     : http://redis.{{ $serverDomain }}:{{$externalPort}}

@@ -27,13 +27,22 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    - host: {{ . }}.{{ $serverDomain }}
+  {{- range $key, $value := .Values.ingress.hosts }}
+    {{- if not (eq $key "portal") }}
+    - host: {{ $value }}.{{ $serverDomain }}
       http:
         paths:
           - path: {{ $ingressPath }}
             backend:
               serviceName: {{ $releaseName }}-frontend
               servicePort: {{ $servicePort }}
+    {{- end }}
   {{- end }}
+    - host: {{ .Values.ingress.hosts.portal }}.{{ $serverDomain }}
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            backend:
+              serviceName: {{ $releaseName }}-frontend
+              servicePort: {{ .Values.frontend.portal.containerPort }}
 {{- end }}
