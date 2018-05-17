@@ -11,8 +11,13 @@ metadata:
 spec:
   type: {{ .Values.frontend.service.type }}
   ports:
-    - port: {{ .Values.frontend.service.port }}
+    - name: nginx-http
+      port: {{ .Values.frontend.service.port }}
       targetPort: {{ .Values.frontend.containerPort }}
+
+    - name: portal-http
+      port: {{ .Values.frontend.portal.containerPort }}
+      targetPort: {{ .Values.frontend.portal.containerPort }}
   selector:
     app: {{ .Release.Name }}-frontend
     release: {{ .Release.Name }}
@@ -107,6 +112,8 @@ spec:
             name: php-fastcgi
           - containerPort: {{ .Values.frontend.node.containerPort }}
             name: node-cgi
+          - containerPort: {{ .Values.frontend.portal.containerPort }}
+            name: portal-node
 
           env:
           - name: APP_NAME
@@ -142,6 +149,16 @@ spec:
             value: {{ .Values.frontend.php.env.orgBranch | quote }}
           - name: NODE_SAAS_BRANCH
             value: {{ .Values.frontend.php.env.nodeSaasBranch | quote }}
+
+          - name: NODE_SAAS_PORT
+            value: {{ .Values.frontend.portal.containerPort | quote }}
+
+          - name: NODE_SAAS_BACKEND_URL
+          {{- if .Values.frontend.service.externalPort }}
+            value: http://{{ .Values.ingress.hosts.master }}.{{ $serverDomain }}:{{ .Values.frontend.service.externalPort }}
+          {{- else }}
+            value: http://{{ .Values.ingress.hosts.master }}.{{ $serverDomain }}
+          {{- end }}
 
           - name: VERBOSE
             value: {{ .Values.frontend.php.env.verbose | quote }}

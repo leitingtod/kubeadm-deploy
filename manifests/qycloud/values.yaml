@@ -9,13 +9,13 @@ frontend:
   replicaCount: 1
   nginx:
     image: "dockerhub.aysaas.com/library/aysaas/nginx"
-    imageTag: "1.13.7-alpine-1.2.1"
+    imageTag: "1.13.7-alpine-1.2.2"
     pullPolicy: Always
     containerPort: 80
 
   php:
     image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.1-ubuntu14.04-1.2.1"
+    imageTag: "7.1-ubuntu14.04-1.2.2"
     pullPolicy: Always
     containerPort: 9000
     env:
@@ -37,18 +37,21 @@ frontend:
 
   node:
     containerPort: 5000
-    # If defined, user can access from internet
-#    externalPort: 8040
+
+  portal:
+    containerPort: 5001
 
   source:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "1.2.1-master-01e9c39c9e"
+    imageTag: "1.2.2-master-01e9c39c9e"
     pullPolicy: Always
     update: "false"
 
   service:
     type: ClusterIP
     port: 80
+    # If defined, user can access from internet by any port except 80
+    #externalPort: 8040
 
   resources:
     requests:
@@ -138,6 +141,7 @@ ingress:
     queue: queue
     mysql: mysql
     redis: redis
+    portal: portal
 
   tls: []
   #  - secretName: chart-example-tls
