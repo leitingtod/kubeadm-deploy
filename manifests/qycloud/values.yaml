@@ -9,13 +9,13 @@ frontend:
   replicaCount: 1
   nginx:
     image: "dockerhub.aysaas.com/library/aysaas/nginx"
-    imageTag: "1.13.7-alpine-1.2.2"
+    imageTag: "1.13.7-alpine-2.0.0"
     pullPolicy: Always
     containerPort: 80
 
   php:
     image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.1-ubuntu14.04-1.2.2"
+    imageTag: "7.1-ubuntu14.04-2.0.0"
     pullPolicy: Always
     containerPort: 9000
     env:
@@ -43,7 +43,7 @@ frontend:
 
   source:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "1.2.2-master-01e9c39c9e"
+    imageTag: "2.0.0-master-01e9c39c9e"
     pullPolicy: Always
     update: "false"
 
