@@ -34,9 +34,11 @@
    phpMyAdmin        : http://mysql.{{ $serverDomain }}:{{$externalPort}}
    phpRedisAdmin     : http://redis.{{ $serverDomain }}:{{$externalPort}}
    beanstalk console : http://queue.{{ $serverDomain }}:{{$externalPort}}
+   rabbitmq manager  : http://queue.{{ $serverDomain }}:{{$externalPort}}
 {{- else }}
    xhprof            : http://xhprof.{{ $serverDomain }}
    phpMyAdmin        : http://mysql.{{ $serverDomain }}
    phpRedisAdmin     : http://redis.{{ $serverDomain }}
    beanstalk console : http://queue.{{ $serverDomain }}
+   rabbitmq manager  : http://queue.{{ $serverDomain }}
 {{- end }}

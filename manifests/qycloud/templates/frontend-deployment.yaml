@@ -70,9 +70,15 @@ spec:
             - name: saas-config
               mountPath: "/opt/config"
 
+      {{- if .Values.rabbitmq.enabled }}
+        - name: init-rabbitmq
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-rabbitmq; do echo waiting for rabbitmq; sleep 2; done;']
+      {{- else }}
         - name: init-beanstalkd
           image: busybox
           command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
+      {{- end }}
 
         - name: init-mongo
           image: busybox
@@ -118,14 +124,26 @@ spec:
           env:
           - name: APP_NAME
             value: {{ .Release.Name }}
-          - name: QUEUE_HOST
-            value: {{ .Release.Name }}-beanstalkd
           - name: MONGO_HOST
             value: {{ .Release.Name }}-mongo
           - name: MYSQL_HOST
             value: {{ .Release.Name }}-mysql
           - name: REDIS_HOST
             value: {{ .Release.Name }}-redis
+
+          - name: QUEUE_HOST
+          {{- if .Values.rabbitmq.enabled }}
+            value: {{ .Release.Name }}-rabbitmq
+          {{- else }}
+            value: {{ .Release.Name }}-beanstalkd
+          {{- end}}
+
+          - name: QUEUE_TYPE
+          {{- if .Values.rabbitmq.enabled }}
+            value: "rabbitmq"
+          {{- else }}
+            value: "beanstalkd"
+          {{- end}}
 
           - name: MONGO_APP_DBNAME
             value: {{ .Values.frontend.php.env.mongoAppDBName | quote }}
