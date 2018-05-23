@@ -9,13 +9,13 @@ frontend:
   replicaCount: 1
   nginx:
     image: "dockerhub.aysaas.com/library/aysaas/nginx"
-    imageTag: "1.13.7-alpine-2.0.0"
+    imageTag: "1.13.7-alpine-2.1.0"
     pullPolicy: Always
     containerPort: 80
 
   php:
     image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.1-ubuntu14.04-2.0.0"
+    imageTag: "7.1-ubuntu14.04-2.1.0"
     pullPolicy: Always
     containerPort: 9000
     env:
@@ -43,7 +43,7 @@ frontend:
 
   source:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "2.0.0-master-01e9c39c9e"
+    imageTag: "2.1.0-hotfix-release-0613ca22b8"
     pullPolicy: Always
     update: "false"
 
@@ -70,6 +70,19 @@ beanstalkd:
   service:
     type: ClusterIP
     port: 11300
+
+rabbitmq:
+  enabled: false
+  replicaCount: 1
+  image: "dockerhub.aysaas.com/library/rabbitmq"
+  imageTag: "3.7.4-management"
+  pullPolicy: Always
+  env:
+    user: anyuan
+    pass: anyuan
+  service:
+    type: ClusterIP
+    port: 5672
 
 mongo:
   replicaCount: 1
@@ -138,7 +151,8 @@ ingress:
     fileio: fileio
     nodesaas: nodestatic
     xhprof: xhprof
-    queue: queue
+    beanstalk: beanstalk
+    rabbitmq: rabbitmq
     mysql: mysql
     redis: redis
     portal: portal
