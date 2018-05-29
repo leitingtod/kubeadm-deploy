@@ -142,7 +142,7 @@ spec:
           {{- if .Values.rabbitmq.enabled }}
             value: "rabbitmq"
           {{- else }}
-            value: "beanstalkd"
+            value: "beanstalk"
           {{- end}}
 
           - name: MONGO_APP_DBNAME
