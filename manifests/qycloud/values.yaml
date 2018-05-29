@@ -43,7 +43,7 @@ frontend:
 
   source:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "2.1.0-hotfix-release-0613ca22b8"
+    imageTag: "2.0.0-master-01e9c39c9e"
     pullPolicy: Always
     update: "false"
 
