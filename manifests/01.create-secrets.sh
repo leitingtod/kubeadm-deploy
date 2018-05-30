@@ -7,3 +7,5 @@ kubectl create secret docker-registry harbor-registry-secret \
     --docker-username=push \
     --docker-password=push123Q \
     --docker-email=push@aysaas.com
+
+kubectl apply -f ./git-sshkey-secret.json
