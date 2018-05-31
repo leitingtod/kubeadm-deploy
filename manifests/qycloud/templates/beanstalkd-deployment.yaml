@@ -16,6 +16,7 @@ spec:
   selector:
     app: {{ .Release.Name }}-beanstalkd
     release: {{ .Release.Name }}
+
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -42,24 +43,29 @@ spec:
         - name: beanstalkd
           image: "{{ .Values.beanstalkd.image }}:{{ .Values.beanstalkd.imageTag }}"
           imagePullPolicy: {{ .Values.beanstalkd.pullPolicy }}
+
           ports:
           - containerPort: {{ .Values.beanstalkd.containerPort }}
+
           resources:
 {{ toYaml .Values.beanstalkd.resources | indent 12 }}
 
-{{- if .Values.imagePullSecrets }}
+
+    {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 6 }}
-{{- end -}}
+    {{- end }}
 
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
     {{- with .Values.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
     {{- with .Values.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}

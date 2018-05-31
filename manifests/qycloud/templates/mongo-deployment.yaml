@@ -15,6 +15,7 @@ spec:
   selector:
     app: {{ .Release.Name }}-mongo
     release: {{ .Release.Name }}
+
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -41,24 +42,29 @@ spec:
         - name: mongo
           image: "{{ .Values.mongo.image }}:{{ .Values.mongo.imageTag }}"
           imagePullPolicy: {{ .Values.mongo.pullPolicy }}
+
           ports:
           - containerPort: {{ .Values.mongo.containerPort }}
+
           resources:
 {{ toYaml .Values.mongo.resources | indent 12 }}
 
-{{- if .Values.imagePullSecrets }}
+
+    {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 6 }}
-{{- end -}}
+    {{- end }}
 
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
     {{- with .Values.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
     {{- with .Values.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}

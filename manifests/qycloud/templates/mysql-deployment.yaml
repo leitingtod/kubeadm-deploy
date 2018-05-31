@@ -15,6 +15,7 @@ spec:
   selector:
     app: {{ .Release.Name }}-mysql
     release: {{ .Release.Name }}
+
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -41,24 +42,28 @@ spec:
         - name: mysql
           image: "{{ .Values.mysql.image }}:{{ .Values.mysql.imageTag }}"
           imagePullPolicy: {{ .Values.mysql.pullPolicy }}
+
           ports:
           - containerPort: {{ .Values.mysql.containerPort }}
+
           resources:
 {{ toYaml .Values.mysql.resources | indent 12 }}
 
-{{- if .Values.imagePullSecrets }}
+    {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 6 }}
-{{- end -}}
+    {{- end }}
 
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
     {{- with .Values.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
     {{- with .Values.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}

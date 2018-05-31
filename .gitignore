@@ -12,4 +12,6 @@ manifests/helm/monocular
 manifests/helm/kubeapps
 manifests/qycloud/debug/
 manifests/debug/
+manifests/kubernetes-dashboard.yaml
+manifests/phpcomposer
 
