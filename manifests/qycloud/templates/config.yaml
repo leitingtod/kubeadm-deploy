@@ -1,8 +1,8 @@
 {{- $phpFastCGIHost := "127.0.0.1" -}}
-{{- $phpFastCGIPort := .Values.frontend.php.containerPort -}}
+{{- $phpFastCGIPort := .Values.php.containerPort -}}
 {{- $nodeFastCGIHost := "127.0.0.1" -}}
-{{- $nodeFastCGIPort := .Values.frontend.node.containerPort -}}
-{{- $externalPort := .Values.frontend.service.externalPort -}}
+{{- $nodeFastCGIPort := .Values.node.containerPort -}}
+{{- $externalPort := .Values.nginx.service.externalPort -}}
 {{- $serverDomain := .Values.ingress.domain | lower -}}
 {{- $masterServerName := .Values.ingress.hosts.master -}}
 {{- $staticServerName := .Values.ingress.hosts.static -}}
@@ -28,9 +28,9 @@ data:
   aysaas.conf: |-
     server {
       listen 80;
-{{- if .Values.frontend.service.externalPort }}
+    {{- if .Values.nginx.service.externalPort }}
       listen {{$externalPort}};
-{{- end }}
+    {{- end }}
 
       server_name {{ $masterServerName }}.{{$serverDomain}};
 
@@ -77,9 +77,9 @@ data:
 
     server {
       listen 80;
-{{- if .Values.frontend.service.externalPort }}
+    {{- if .Values.nginx.service.externalPort }}
       listen {{$externalPort}};
-{{- end }}
+    {{- end }}
 
       server_name {{ $staticServerName }}.{{$serverDomain}};
 
@@ -104,9 +104,9 @@ data:
 
     server {
       listen 80;
-{{- if .Values.frontend.service.externalPort }}
+    {{- if .Values.nginx.service.externalPort }}
       listen {{$externalPort}};
-{{- end }}
+    {{- end }}
 
       server_name {{ $fileioServerName }}.{{$serverDomain}};
       root /opt/saas/public;
@@ -128,9 +128,9 @@ data:
 
     server {
       listen 80;
-{{- if .Values.frontend.service.externalPort }}
+    {{- if .Values.nginx.service.externalPort }}
       listen {{$externalPort}};
-{{- end }}
+    {{- end }}
 
       server_name {{ $staticServerName }}-portal.{{$serverDomain}};
 
@@ -205,9 +205,9 @@ data:
 
     server {
       listen 80;
-{{- if .Values.frontend.service.externalPort }}
+    {{- if .Values.nginx.service.externalPort }}
       listen {{$externalPort}};
-{{- end }}
+    {{- end }}
 
       server_name {{ $beanstalkConsoleServerName }}.{{$serverDomain}};
       #auth_basic "[Tips]";
@@ -239,9 +239,9 @@ data:
 
     server {
       listen 80;
-{{- if .Values.frontend.service.externalPort }}
+    {{- if .Values.nginx.service.externalPort }}
       listen {{$externalPort}};
-{{- end }}
+    {{- end }}
 
       server_name {{ $redisConsoleServerName }}.{{$serverDomain}};
       #auth_basic "[Tips]";
@@ -273,9 +273,9 @@ data:
 
     server {
       listen 80;
-{{- if .Values.frontend.service.externalPort }}
+    {{- if .Values.nginx.service.externalPort }}
       listen {{$externalPort}};
-{{- end }}
+    {{- end }}
 
       server_name {{ $mysqlConsoleServerName }}.{{$serverDomain}};
       #auth_basic "[Tips]";
@@ -482,7 +482,7 @@ data:
 
     module.exports = {
         port: {{ $nodeFastCGIPort }},
-{{- if .Values.frontend.service.externalPort }}
+  {{- if .Values.nginx.service.externalPort }}
         api: 'http://{{ $masterServerName }}.{{$serverDomain}}:{{$externalPort}}/',
         static: 'http://{{ $nodesaasServerName }}.{{$serverDomain}}:{{$externalPort}}',
         fileio: 'http://{{ $fileioServerName }}.{{$serverDomain}}:{{$externalPort}}',
