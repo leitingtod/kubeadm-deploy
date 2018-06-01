@@ -72,7 +72,7 @@ beanstalkd:
     port: 11300
 
 rabbitmq:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/rabbitmq"
   imageTag: "3.7.4-management"
