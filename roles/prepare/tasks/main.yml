@@ -8,6 +8,13 @@
     state: present
     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
 
+- name: OS DISTRO | Recommend Ubuntu 16.04+
+  assert:
+    that:
+      - "ansible_distribution == 'Ubuntu'"
+      - "ansible_distribution_major_version >= 16"
+    msg: "recommend Ubuntu 16.04+"
+
 ## Kubeadm don't use cfssl
 #- name: Check CFSSL exists
 #  become: yes
