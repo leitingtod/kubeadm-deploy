@@ -72,10 +72,16 @@ source:
   pullPolicy: Always
   saas:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "2.2.0-master-01e9c39c9e"
-  node:
+    imageTag: "2.2.0-master-393d6a9c7a"
+  nodeSaas:
     image: "dockerhub.aysaas.com/library/aysaas/node-saas"
-    imageTag: "2.2.0-master-01e9c39c9e"
+    imageTag: "2.2.0-release-b937a327"
+  devTools:
+    image: "dockerhub.aysaas.com/library/aysaas/dev-tools"
+    imageTag: "2.2.0"
+  yarnCache:
+    image: "dockerhub.aysaas.com/library/aysaas/yarn-cache"
+    imageTag: "2.2.0"
 
 
 beanstalkd:
@@ -90,7 +96,7 @@ beanstalkd:
 
 
 rabbitmq:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/rabbitmq"
   imageTag: "3.7.4-management"

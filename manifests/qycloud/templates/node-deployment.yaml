@@ -43,8 +43,17 @@ spec:
     spec:
       initContainers:
         - name: source
-          image: "{{ .Values.source.node.image }}:{{ .Values.source.node.imageTag }}"
+          image: "{{ .Values.source.nodeSaas.image }}:{{ .Values.source.nodeSaas.imageTag }}"
           imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: node-saas-home
+              mountPath: "/opt"
+
+        - name: yarn-cache
+          image: "{{ .Values.source.yarnCache.image }}:{{ .Values.source.yarnCache.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/.yarn_cache /opt']
           volumeMounts:
             - name: node-saas-home
               mountPath: "/opt"

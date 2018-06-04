@@ -41,19 +41,29 @@ spec:
         app: {{ .Release.Name }}-php
         release: {{ .Release.Name }}
     spec:
-      hostAliases:
-      - ip: "127.0.0.1"
-        hostnames:
-      {{- range .Values.ingress.hosts }}
-          - {{ . }}.{{ $serverDomain }}
-      {{- end }}
-
       initContainers:
         - name: source
           image: "{{ .Values.source.saas.image }}:{{ .Values.source.saas.imageTag }}"
           imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
           volumeMounts:
-            - name: saas-home
+            - name: home
+              mountPath: "/opt"
+
+        - name: yarn-cache
+          image: "{{ .Values.source.yarnCache.image }}:{{ .Values.source.yarnCache.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/.yarn_cache /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+        - name: dev-tools
+          image: "{{ .Values.source.devTools.image }}:{{ .Values.source.devTools.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: home
               mountPath: "/opt"
 
       {{- if .Values.rabbitmq.enabled }}
@@ -161,7 +171,7 @@ spec:
           resources:
 {{ toYaml .Values.php.resources | indent 12 }}
           volumeMounts:
-            - name: saas-home
+            - name: home
               mountPath: "/opt"
             - name: saas-git-sshkey
               mountPath: "/var/ssh-config"
@@ -176,7 +186,7 @@ spec:
           secretName: git-sshkey-default
 
       # saas source code
-      - name: saas-home
+      - name: home
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
           claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}
