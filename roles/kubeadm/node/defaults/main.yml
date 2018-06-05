@@ -1,1 +1,5 @@
 kubeadm_join:  kubeadm join 192.168.0.226:6443 --token ihis1x.gpb81jx7pwivfmj4 --discovery-token-ca-cert-hash sha256:bdf1e4aef29256e98268891e26e6f94ee1df7dd79d5da33d443485893f3eaf66
+d0y8nt.451u0ojelwhkeh35
+
+kubeadm_draint: kubectl drain <node name> --delete-local-data --force --ignore-daemonsets
+kubeadm_delete: kubectl delete node <node name>
