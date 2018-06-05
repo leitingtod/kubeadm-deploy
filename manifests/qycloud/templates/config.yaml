@@ -9,9 +9,12 @@
 {{- $fileioServerName := .Values.ingress.hosts.fileio -}}
 {{- $nodesaasServerName := .Values.ingress.hosts.nodesaas -}}
 {{- $xhprofServerName := .Values.ingress.hosts.xhprof -}}
-{{- $queueConsoleServerName := .Values.ingress.hosts.queue -}}
 {{- $mysqlConsoleServerName := .Values.ingress.hosts.mysql -}}
 {{- $redisConsoleServerName := .Values.ingress.hosts.redis -}}
+{{- $beanstalkConsoleServerName := .Values.ingress.hosts.beanstalk -}}
+{{- $rabbitmqHost := printf "%s-%s" .Release.Name "rabbitmq" -}}
+{{- $rabbitmqCtlServerName := .Values.ingress.hosts.rabbitmq -}}
+
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -178,7 +181,7 @@ data:
       listen 80;
 {{- if .Values.frontend.service.externalPort }}
       listen {{$externalPort}};
-{{- end }}
+    {{- end }}
 
       server_name {{ $xhprofServerName }}.{{$serverDomain}};
       #auth_basic "[Tips]";
@@ -206,7 +209,7 @@ data:
       listen {{$externalPort}};
 {{- end }}
 
-      server_name {{ $queueConsoleServerName }}.{{$serverDomain}};
+      server_name {{ $beanstalkConsoleServerName }}.{{$serverDomain}};
       #auth_basic "[Tips]";
       #auth_basic_user_file /etc/nginx/conf.d/[USER];
       error_log /var/log/nginx/beanstalk-console-error.log error;
@@ -309,6 +312,25 @@ data:
           deny all;
       }
     }
+
+    server {
+        listen 80;
+{{- if .Values.frontend.service.externalPort }}
+      listen {{$externalPort}};
+{{- end }}
+
+        server_name {{ $rabbitmqCtlServerName }}.{{$serverDomain}};
+
+        error_log /var/log/nginx/rabbitmq-management-error.log error;
+        access_log /var/log/nginx/rabbitmq-management-access.log combined;
+
+        location / {
+            proxy_set_header   Host   $host;
+            proxy_set_header   X-Real-IP  $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_pass      http://{{ $rabbitmqHost }}:15672;
+        }
+    }
   nginx.conf: |-
     # For more information on configuration, see:
     #   * Official English Documentation: http://nginx.org/en/docs/
@@ -330,10 +352,6 @@ data:
 
 
     http {
-        upstream nodecgi {
-            server {{ $nodeFastCGIHost }}:{{ $nodeFastCGIPort }};
-        }
-
         include       /etc/nginx/mime.types;
         include       /etc/nginx/sites-enabled/*;
         default_type  application/octet-stream;
@@ -466,11 +484,11 @@ data:
         api: 'http://{{ $masterServerName }}.{{$serverDomain}}:{{$externalPort}}/',
         static: 'http://{{ $nodesaasServerName }}.{{$serverDomain}}:{{$externalPort}}',
         fileio: 'http://{{ $fileioServerName }}.{{$serverDomain}}:{{$externalPort}}',
-{{- else }}
+  {{- else }}
         api: 'http://{{ $masterServerName }}.{{$serverDomain}}/',
         static: 'http://{{ $nodesaasServerName }}.{{$serverDomain}}',
         fileio: 'http://{{ $fileioServerName }}.{{$serverDomain}}',
-{{- end }}
+  {{- end }}
 
         logger: {
             filename: 'log/node-saas.log'
