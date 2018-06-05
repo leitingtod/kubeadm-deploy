@@ -52,14 +52,14 @@ spec:
           resources:
 {{ toYaml .Values.nginx.resources | indent 12 }}
           volumeMounts:
-            - name: saas-home
+            - name: home
               mountPath: "/opt"
 
-            - name: saas-config
+            - name: config
               mountPath: "/etc/nginx/nginx.conf"
               subPath: "nginx.conf"
 
-            - name: saas-config
+            - name: config
               mountPath: "/etc/nginx/conf.d/aysaas.conf"
               subPath: "aysaas.conf"
 
@@ -68,12 +68,12 @@ spec:
 {{ toYaml .Values.persistence.volumes | indent 6 }}
       {{- end }}
       # nginx config
-      - name: saas-config
+      - name: config
         configMap:
           name: {{ .Release.Name }}-config
 
       # saas source code
-      - name: saas-home
+      - name: home
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
           claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}

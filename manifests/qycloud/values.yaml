@@ -102,8 +102,8 @@ rabbitmq:
   imageTag: "3.7.4-management"
   pullPolicy: Always
   env:
-    user: anyuan
-    pass: anyuan
+    user: guest
+    pass: guest
   service:
     type: ClusterIP
     port: 5672
@@ -166,7 +166,7 @@ persistence:
 
   accessMode: ReadWriteMany
   size: 8Gi
-  storageClass: "aysaas-nfs-once"
+  storageClass: "aysaas-nfs"
 
 
 ingress:

@@ -41,23 +41,14 @@ spec:
         app: {{ .Release.Name }}-node
         release: {{ .Release.Name }}
     spec:
+      hostAliases:
+      - ip: "192.168.0.226"
+        hostnames:
+      {{- range .Values.ingress.hosts }}
+          - {{ . }}.{{ $serverDomain }}
+      {{- end }}
+
       initContainers:
-        - name: source
-          image: "{{ .Values.source.nodeSaas.image }}:{{ .Values.source.nodeSaas.imageTag }}"
-          imagePullPolicy: {{ .Values.source.pullPolicy }}
-          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
-          volumeMounts:
-            - name: node-saas-home
-              mountPath: "/opt"
-
-        - name: yarn-cache
-          image: "{{ .Values.source.yarnCache.image }}:{{ .Values.source.yarnCache.imageTag }}"
-          imagePullPolicy: {{ .Values.source.pullPolicy }}
-          command: ['sh', '-c', 'cp -r /qycloud/.yarn_cache /opt']
-          volumeMounts:
-            - name: node-saas-home
-              mountPath: "/opt"
-
       {{- if eq "old" .Values.node.env.nodeSaasType }}
 
         - name: config
