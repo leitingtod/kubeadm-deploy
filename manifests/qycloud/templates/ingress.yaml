@@ -45,4 +45,20 @@ spec:
             backend:
               serviceName: {{ $releaseName }}-frontend
               servicePort: {{ .Values.frontend.portal.containerPort }}
+
+    - host: {{ .Values.ingress.hosts.static }}.{{ $serverDomain }}
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            backend:
+              serviceName: {{ $releaseName }}-frontend
+              servicePort: {{ $servicePort }}
+
+    - host: {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            backend:
+              serviceName: {{ $releaseName }}-frontend
+              servicePort: {{ $servicePort }}
 {{- end }}
