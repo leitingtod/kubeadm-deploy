@@ -8,4 +8,4 @@ kubectl create secret docker-registry harbor-registry-secret \
     --docker-password=push123Q \
     --docker-email=push@aysaas.com
 
-kubectl apply -f ./git-sshkey-secret.json
+kubectl create secret generic git-sshkey-default --from-file=ssh_privatekey=/root/.ssh/id_rsa --from-file=ssh_publickey=/root/.ssh/id_rsa.pub
