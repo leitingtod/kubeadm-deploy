@@ -313,6 +313,7 @@ data:
       }
     }
 
+{{- if .Values.rabbitmq.enabled }}
     server {
         listen 80;
 {{- if .Values.frontend.service.externalPort }}
@@ -331,6 +332,7 @@ data:
             proxy_pass      http://{{ $rabbitmqHost }}:15672;
         }
     }
+{{- end }}
   nginx.conf: |-
     # For more information on configuration, see:
     #   * Official English Documentation: http://nginx.org/en/docs/
@@ -377,7 +379,7 @@ data:
         gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
         client_max_body_size 200M;
         server_names_hash_max_size 1024;
-        server_names_hash_bucket_size 64;
+        server_names_hash_bucket_size 512;
         fastcgi_buffers 8 128k;
         fastcgi_connect_timeout 300;
         fastcgi_send_timeout 300;
