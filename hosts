@@ -24,7 +24,7 @@ localhost ansible_connection=local ansible_ssh_user=anyuan ansible_ssh_pass=123 
 [kube-node]
 192.168.0.229 NODE_NAME=node1.az1 NODE_IP="192.168.0.229" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
 
-192.168.0.227 NODE_NAME=node2.az1 NODE_IP="192.168.0.227" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
+#192.168.0.227 NODE_NAME=node2.az1 NODE_IP="192.168.0.227" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
 
 192.168.0.231 NODE_NAME=node3.az1 NODE_IP="192.168.0.231" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
 
