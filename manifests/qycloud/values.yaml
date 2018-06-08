@@ -5,7 +5,7 @@
 nginx:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/nginx"
-  imageTag: "1.13.7-alpine-2.1.0"
+  imageTag: "1.13.7-alpine-2.2.0"
   pullPolicy: Always
   containerPort: 80
   service:
@@ -18,7 +18,7 @@ nginx:
 php:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/php"
-  imageTag: "7.1-ubuntu14.04-2.1.0"
+  imageTag: "7.1-ubuntu14.04-2.2.0"
   pullPolicy: Always
   containerPort: 9000
   env:
@@ -66,6 +66,13 @@ node:
   service:
     type: ClusterIP
     port: 5000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: "500m"
+      memory: "1512Mi"
 
 
 source:
