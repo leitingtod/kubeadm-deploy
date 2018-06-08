@@ -125,6 +125,12 @@ spec:
           - name: MYSQL_APP_PASS
             value: {{ .Values.php.env.mysqlAppPass | quote }}
 
+          # rabbitmq management config
+          - name: RABBITMQ_DEFAULT_USER
+            value: {{ .Values.rabbitmq.env.user | quote }}
+          - name: RABBITMQ_DEFAULT_PASS
+            value: {{ .Values.rabbitmq.env.pass | quote }}
+
           # source code config
           - name: SYNC_SOURCE
             value: {{ .Values.php.env.syncSource | quote }}
