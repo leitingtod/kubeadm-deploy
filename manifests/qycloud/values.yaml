@@ -2,64 +2,101 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-imagePullSecrets:
-- name: harbor-registry-secret
-
-frontend:
+nginx:
   replicaCount: 1
-  nginx:
-    image: "dockerhub.aysaas.com/library/aysaas/nginx"
-    imageTag: "1.13.7-alpine-2.1.0"
-    pullPolicy: Always
-    containerPort: 80
-
-  php:
-    image: "dockerhub.aysaas.com/library/aysaas/php"
-    imageTag: "7.1-ubuntu14.04-2.1.0"
-    pullPolicy: Always
-    containerPort: 9000
-    env:
-      mongoAppDBName: master
-      mongoAppUser: master
-      mongoAppPass: L9jD7srDBdS7Nfob
-
-      mysqlAppDBName: master
-      mysqlAppUser: master
-      mysqlAppPass: pZdxysqJX4bK4VrB
-
-      snycSource: false
-      saasBranch: master
-      orgBranch: master
-      nodeSaasBranch: master
-
-      verbose: ""
-      forceBuild: ""
-
-  node:
-    containerPort: 5000
-
-  portal:
-    containerPort: 5001
-
-  source:
-    image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "2.0.0-master-01e9c39c9e"
-    pullPolicy: Always
-    update: "false"
-
+  image: "dockerhub.aysaas.com/library/aysaas/nginx"
+  imageTag: "1.13.7-alpine-2.2.0"
+  pullPolicy: Always
+  containerPort: 80
   service:
     type: ClusterIP
     port: 80
     # If defined, user can access from internet by any port except 80
     #externalPort: 8040
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "15Mi"
+    limits:
+      cpu: "200m"
+      memory: "100Mi"
+
+
+php:
+  replicaCount: 1
+  image: "dockerhub.aysaas.com/library/aysaas/php"
+  imageTag: "7.1-ubuntu14.04-2.2.0"
+  pullPolicy: Always
+  containerPort: 9000
+  env:
+    mongoAppDBName: master
+    mongoAppUser: master
+    mongoAppPass: L9jD7srDBdS7Nfob
+
+    mysqlAppDBName: master
+    mysqlAppUser: master
+    mysqlAppPass: pZdxysqJX4bK4VrB
+
+    snycSource: false
+    saasBranch: master
+    orgBranch: master
+
+    verbose: ""
+    forceBuild: ""
+
+  service:
+    type: ClusterIP
+    port: 80
 
   resources:
     requests:
-      cpu: 100m
-      memory: 100Mi
+      cpu: "500m"
+      memory: "1512Mi"
     limits:
       cpu: "500m"
       memory: "1512Mi"
+
+
+node:
+  replicaCount: 1
+  image: "dockerhub.aysaas.com/library/aysaas/node"
+  imageTag: "8.11.1-slim-2.2.0"
+  pullPolicy: Always
+  containerPort: 5000
+  env:
+    snycSource: false
+    nodeSaasBranch: master
+    nodeSaasType: ""
+    verbose: ""
+    forceBuild: ""
+
+  service:
+    type: ClusterIP
+    port: 5000
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1512Mi"
+
+
+source:
+  pullPolicy: Always
+  saas:
+    image: "dockerhub.aysaas.com/library/aysaas/saas"
+    imageTag: "2.2.0-master-393d6a9c7a"
+  nodeSaas:
+    image: "dockerhub.aysaas.com/library/aysaas/node-saas"
+    imageTag: "2.2.0-release-b937a327"
+  devTools:
+    image: "dockerhub.aysaas.com/library/aysaas/dev-tools"
+    imageTag: "2.2.0"
+  yarnCache:
+    image: "dockerhub.aysaas.com/library/aysaas/yarn-cache"
+    imageTag: "2.2.0"
+
 
 beanstalkd:
   replicaCount: 1
@@ -70,19 +107,35 @@ beanstalkd:
   service:
     type: ClusterIP
     port: 11300
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "1Mi"
+    limits:
+      cpu: "200m"
+      memory: "100Mi"
+
 
 rabbitmq:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/rabbitmq"
   imageTag: "3.7.4-management"
   pullPolicy: Always
   env:
-    user: anyuan
-    pass: anyuan
+    user: guest
+    pass: guest
   service:
     type: ClusterIP
     port: 5672
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "100Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
 
 mongo:
   replicaCount: 1
@@ -95,11 +148,12 @@ mongo:
     port: 27017
   resources:
     requests:
-      cpu: 100m
-      memory: 100Mi
+      cpu: "500m"
+      memory: "512Mi"
     limits:
       cpu: "500m"
       memory: "512Mi"
+
 
 mysql:
   replicaCount: 1
@@ -112,11 +166,12 @@ mysql:
     port: 3306
   resources:
     requests:
-      cpu: 100m
-      memory: 100Mi
-    limits:
-      cpu: "500m"
+      cpu: "1000m"
       memory: "1512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1512Mi"
+
 
 redis:
   replicaCount: 1
@@ -127,15 +182,26 @@ redis:
   service:
     type: ClusterIP
     port: 6379
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "30Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+
 
 persistence:
   enabled: false
    # If defined, PVC must be created manually before volume will be bound
 #  existingClaim: "saas-saas"
+#  volumes:
+#    - name: saas-home
+#      emptyDir: {}
 
   accessMode: ReadWriteMany
   size: 8Gi
-  storageClass: "aysaas-nfs-once"
+  storageClass: "aysaas-nfs"
 
 
 ingress:
@@ -161,6 +227,10 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+
+imagePullSecrets:
+- name: harbor-registry-secret
 
 nodeSelector: {}
 

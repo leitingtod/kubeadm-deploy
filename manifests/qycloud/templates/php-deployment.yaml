@@ -1,0 +1,205 @@
+{{- $serverDomain := .Values.ingress.domain | lower -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-php
+  labels:
+    app: {{ .Release.Name }}-php
+    chart: {{ template "qycloud.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.php.service.type }}
+  ports:
+    - name: php-fastcgi
+      port: {{ .Values.php.containerPort }}
+      targetPort: {{ .Values.php.containerPort }}
+      
+  selector:
+    app: {{ .Release.Name }}-php
+    release: {{ .Release.Name }}
+    
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-php
+  labels:
+    app: {{ .Release.Name }}-php
+    chart: {{ template "qycloud.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.php.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-php
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-php
+        release: {{ .Release.Name }}
+    spec:
+      hostAliases:
+      - ip: "192.168.0.226"
+        hostnames:
+      {{- range .Values.ingress.hosts }}
+          - {{ . }}.{{ $serverDomain }}
+      {{- end }}
+
+      initContainers:
+      {{- if .Values.rabbitmq.enabled }}
+
+        - name: init-rabbitmq
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-rabbitmq; do echo waiting for rabbitmq; sleep 2; done;']
+      {{- else }}
+
+        - name: init-beanstalkd
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
+      {{- end }}
+
+        - name: init-mongo
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-mongo; do echo waiting for mongo; sleep 2; done;']
+
+        - name: init-mysql
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-mysql; do echo waiting for mysql; sleep 2; done;']
+
+        - name: init-redis
+          image: busybox
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-redis; do echo waiting for redis; sleep 2; done;']
+
+
+      containers:
+        - name: php
+          image: "{{ .Values.php.image }}:{{ .Values.php.imageTag }}"
+          imagePullPolicy: {{ .Values.php.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.php.containerPort }}
+            name: php-fastcgi
+
+          env:
+          - name: APP_NAME
+            value: {{ .Release.Name }}
+
+          # backend host
+          - name: MONGO_HOST
+            value: {{ .Release.Name }}-mongo
+          - name: MYSQL_HOST
+            value: {{ .Release.Name }}-mysql
+          - name: REDIS_HOST
+            value: {{ .Release.Name }}-redis
+
+          - name: QUEUE_HOST
+          {{- if .Values.rabbitmq.enabled }}
+            value: {{ .Release.Name }}-rabbitmq
+          {{- else }}
+            value: {{ .Release.Name }}-beanstalkd
+          {{- end}}
+
+          - name: QUEUE_TYPE
+          {{- if .Values.rabbitmq.enabled }}
+            value: "rabbitmq"
+          {{- else }}
+            value: "beanstalk"
+          {{- end}}
+
+          # mongo config
+          - name: MONGO_APP_DBNAME
+            value: {{ .Values.php.env.mongoAppDBName | quote }}
+          - name: MONGO_APP_USER
+            value: {{ .Values.php.env.mongoAppUser | quote }}
+          - name: MONGO_APP_PASS
+            value: {{ .Values.php.env.mongoAppPass | quote }}
+
+          # mysql config
+          - name: MYSQL_APP_DBNAME
+            value: {{ .Values.php.env.mysqlAppDBName | quote }}
+          - name: MYSQL_APP_USER
+            value: {{ .Values.php.env.mysqlAppUser | quote }}
+          - name: MYSQL_APP_PASS
+            value: {{ .Values.php.env.mysqlAppPass | quote }}
+
+          # rabbitmq management config
+          - name: RABBITMQ_DEFAULT_USER
+            value: {{ .Values.rabbitmq.env.user | quote }}
+          - name: RABBITMQ_DEFAULT_PASS
+            value: {{ .Values.rabbitmq.env.pass | quote }}
+
+          # source code config
+          - name: SYNC_SOURCE
+            value: {{ .Values.php.env.syncSource | quote }}
+          - name: SAAS_BRANCH
+            value: {{ .Values.php.env.saasBranch | quote }}
+          - name: ORG_BRANCH
+            value: {{ .Values.php.env.orgBranch | quote }}
+          - name: NODE_SAAS_BRANCH
+            value: {{ .Values.php.env.nodeSaasBranch | quote }}
+
+          - name: VERBOSE
+            value: {{ .Values.php.env.verbose | quote }}
+          - name: FORCE_BUILD
+            value: {{ .Values.php.env.forceBuild | quote }}
+
+          # phpRedisAdmin config
+          - name: REDIS_1_HOST
+            value: {{ .Release.Name }}-redis
+
+          # phpMysqlAdmin config
+          - name: PMA_HOSTS
+            value: {{ .Release.Name }}-mysql
+          - name: PMA_USER
+            value: {{ .Values.php.env.mysqlAppUser | quote }}
+          - name: PMA_PASSWORD
+            value: {{ .Values.php.env.mysqlAppPass | quote }}
+
+          resources:
+{{ toYaml .Values.php.resources | indent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+            - name: git-sshkey
+              mountPath: "/var/ssh-config"
+
+      volumes:
+      {{- if .Values.persistence.volumes }}
+{{ toYaml .Values.persistence.volumes | indent 6 }}
+      {{- end }}
+      # git ssh-key
+      - name: git-sshkey
+        secret:
+          secretName: git-sshkey-default
+
+      # saas source code
+      - name: home
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}
+      {{- else }}
+        emptyDir: {}
+      {{ end }}
+
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+    {{- end }}
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

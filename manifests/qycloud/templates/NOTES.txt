@@ -1,8 +1,8 @@
 {{- $serverDomain := .Values.ingress.domain | lower -}}
-{{- $externalPort := .Values.frontend.service.externalPort -}}
+{{- $externalPort := .Values.nginx.service.externalPort -}}
 1. 应用访问地址：
 {{- if .Values.ingress.enabled }}
-  {{- if .Values.frontend.service.externalPort }}
+  {{- if .Values.nginx.service.externalPort }}
    http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.portal }}.{{ $serverDomain }}:{{ $externalPort }}
   {{- else }}
    http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.portal }}.{{ $serverDomain }}
@@ -29,16 +29,22 @@
    kubectl get secret git-sshkey-default -o json | jq -r ".data.ssh_publickey"
 
 4. 扩展工具访问地址：
-{{- if .Values.frontend.service.externalPort }}
-   xhprof            : http://xhprof.{{ $serverDomain }}:{{$externalPort}}
-   phpMyAdmin        : http://mysql.{{ $serverDomain }}:{{$externalPort}}
-   phpRedisAdmin     : http://redis.{{ $serverDomain }}:{{$externalPort}}
-   beanstalk console : http://queue.{{ $serverDomain }}:{{$externalPort}}
-   rabbitmq manager  : http://queue.{{ $serverDomain }}:{{$externalPort}}
+{{- if .Values.nginx.service.externalPort }}
+   xhprof            : http://{{ .Values.ingress.hosts.xhprof }}.{{ $serverDomain }}:{{$externalPort}}
+   phpMyAdmin        : http://{{ .Values.ingress.hosts.mysql }}.{{ $serverDomain }}:{{$externalPort}}
+   phpRedisAdmin     : http://{{ .Values.ingress.hosts.mysql }}redis.{{ $serverDomain }}:{{$externalPort}}
+ {{- if .Values.rabbitmq.enabled }}
+   rabbitmq manager  : http://{{ .Values.ingress.hosts.rabbitmq }}.{{ $serverDomain }}:{{$externalPort}} (user: {{ .Values.rabbitmq.env.user }} pass: {{ .Values.rabbitmq.env.pass }})
+ {{- else }}
+   beanstalk console : http://{{ .Values.ingress.hosts.beanstalk }}.{{ $serverDomain }}:{{$externalPort}}
+ {{- end }}
 {{- else }}
-   xhprof            : http://xhprof.{{ $serverDomain }}
-   phpMyAdmin        : http://mysql.{{ $serverDomain }}
-   phpRedisAdmin     : http://redis.{{ $serverDomain }}
-   beanstalk console : http://queue.{{ $serverDomain }}
-   rabbitmq manager  : http://queue.{{ $serverDomain }}
+   xhprof            : http://{{ .Values.ingress.hosts.xhprof }}.{{ $serverDomain }}
+   phpMyAdmin        : http://{{ .Values.ingress.hosts.mysql }}.{{ $serverDomain }}
+   phpRedisAdmin     : http://{{ .Values.ingress.hosts.mysql }}redis.{{ $serverDomain }}
+ {{- if .Values.rabbitmq.enabled }}
+   rabbitmq manager  : http://{{ .Values.ingress.hosts.rabbitmq }}.{{ $serverDomain }} (user: {{ .Values.rabbitmq.env.user }} pass: {{ .Values.rabbitmq.env.pass }})
+ {{- else }}
+   beanstalk console : http://{{ .Values.ingress.hosts.beanstalk }}.{{ $serverDomain }}
+ {{- end }}
 {{- end }}

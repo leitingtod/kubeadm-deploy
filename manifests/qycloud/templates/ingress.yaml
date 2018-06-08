@@ -1,7 +1,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $releaseName := .Release.Name -}}
 {{- $serverDomain := .Values.ingress.domain | lower -}}
-{{- $servicePort := .Values.frontend.service.port -}}
+{{- $servicePort := .Values.nginx.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -34,7 +34,7 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $releaseName }}-frontend
+              serviceName: {{ $releaseName }}-nginx
               servicePort: {{ $servicePort }}
     {{- end }}
   {{- end }}
@@ -43,22 +43,20 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $releaseName }}-frontend
-              servicePort: {{ .Values.frontend.portal.containerPort }}
-
-    - host: {{ .Values.ingress.hosts.static }}.{{ $serverDomain }}
+              serviceName: {{ $releaseName }}-node
+              servicePort: {{ .Values.node.containerPort }}
+    - host: {{ .Values.ingress.hosts.static }}-portal.{{ $serverDomain }}
       http:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $releaseName }}-frontend
+              serviceName: {{ $releaseName }}-nginx
               servicePort: {{ $servicePort }}
-
     - host: {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
       http:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $releaseName }}-frontend
+              serviceName: {{ $releaseName }}-nginx
               servicePort: {{ $servicePort }}
 {{- end }}

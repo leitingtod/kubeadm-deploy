@@ -1,68 +1,86 @@
+{{- $serverDomain := .Values.ingress.domain | lower -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-redis
+  name: {{ .Release.Name }}-nginx
   labels:
-    app: {{ .Release.Name }}-redis
+    app: {{ .Release.Name }}-nginx
     chart: {{ template "qycloud.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  type: {{ .Values.redis.service.type }}
+  type: {{ .Values.nginx.service.type }}
   ports:
-    - port: {{ .Values.redis.service.port }}
-      targetPort: {{ .Values.redis.containerPort }}
+    - name: nginx-http
+      port: {{ .Values.nginx.service.port }}
+      targetPort: {{ .Values.nginx.containerPort }}
+
   selector:
-    app: {{ .Release.Name }}-redis
+    app: {{ .Release.Name }}-nginx
     release: {{ .Release.Name }}
 
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-redis
+  name: {{ .Release.Name }}-nginx
   labels:
-    app: {{ .Release.Name }}-redis
+    app: {{ .Release.Name }}-nginx
     chart: {{ template "qycloud.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.redis.replicaCount }}
+  replicas: {{ .Values.nginx.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-redis
+      app: {{ .Release.Name }}-nginx
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-redis
+        app: {{ .Release.Name }}-nginx
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: redis
-          image: "{{ .Values.redis.image }}:{{ .Values.redis.imageTag }}"
-          imagePullPolicy: {{ .Values.redis.pullPolicy }}
-          ports:
-          - containerPort: {{ .Values.redis.containerPort }}
-          resources:
-{{ toYaml .Values.redis.resources | indent 12 }}
-          volumeMounts:
-            - name: saas-home
-              mountPath: "/data"
-              subPath: "data/redis"
+        - name: nginx
+          image: "{{ .Values.nginx.image }}:{{ .Values.nginx.imageTag }}"
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
 
+          ports:
+          - containerPort: {{ .Values.nginx.containerPort }}
+
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+            - name: config
+              mountPath: "/etc/nginx/nginx.conf"
+              subPath: "nginx.conf"
+
+            - name: config
+              mountPath: "/etc/nginx/conf.d/aysaas.conf"
+              subPath: "aysaas.conf"
 
       volumes:
       {{- if .Values.persistence.volumes }}
 {{ toYaml .Values.persistence.volumes | indent 6 }}
       {{- end }}
-      - name: saas-home
+      # nginx config
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-config
+
+      # saas source code
+      - name: home
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
           claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}
       {{- else }}
         emptyDir: {}
       {{ end }}
+
 
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
