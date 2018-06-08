@@ -13,6 +13,13 @@ nginx:
     port: 80
     # If defined, user can access from internet by any port except 80
     #externalPort: 8040
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "15Mi"
+    limits:
+      cpu: "200m"
+      memory: "100Mi"
 
 
 php:
@@ -43,8 +50,8 @@ php:
 
   resources:
     requests:
-      cpu: 100m
-      memory: 100Mi
+      cpu: "500m"
+      memory: "1512Mi"
     limits:
       cpu: "500m"
       memory: "1512Mi"
@@ -68,8 +75,8 @@ node:
     port: 5000
   resources:
     requests:
-      cpu: 100m
-      memory: 100Mi
+      cpu: "500m"
+      memory: "1512Mi"
     limits:
       cpu: "500m"
       memory: "1512Mi"
@@ -100,6 +107,13 @@ beanstalkd:
   service:
     type: ClusterIP
     port: 11300
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "1Mi"
+    limits:
+      cpu: "200m"
+      memory: "100Mi"
 
 
 rabbitmq:
@@ -114,6 +128,13 @@ rabbitmq:
   service:
     type: ClusterIP
     port: 5672
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "100Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
 
 
 mongo:
@@ -127,8 +148,8 @@ mongo:
     port: 27017
   resources:
     requests:
-      cpu: 100m
-      memory: 100Mi
+      cpu: "500m"
+      memory: "512Mi"
     limits:
       cpu: "500m"
       memory: "512Mi"
@@ -145,10 +166,10 @@ mysql:
     port: 3306
   resources:
     requests:
-      cpu: 100m
-      memory: 100Mi
+      cpu: "1000m"
+      memory: "1512Mi"
     limits:
-      cpu: "500m"
+      cpu: "1000m"
       memory: "1512Mi"
 
 
@@ -161,6 +182,13 @@ redis:
   service:
     type: ClusterIP
     port: 6379
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "30Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
 
 
 persistence:
