@@ -11,7 +11,7 @@ metadata:
 spec:
   type: {{ .Values.nginx.service.type }}
   ports:
-    - name: nginx-http
+    - name: nginx-http1
       port: {{ .Values.nginx.service.port }}
       targetPort: {{ .Values.nginx.containerPort }}
 

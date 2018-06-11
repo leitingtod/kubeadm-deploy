@@ -41,6 +41,7 @@ spec:
         app: {{ .Release.Name }}-php
         release: {{ .Release.Name }}
     spec:
+    {{- if not .Values.nginx.service.externalPort }}
       hostAliases:
       - ip: "192.168.0.226"
         hostnames:
@@ -49,6 +50,7 @@ spec:
       {{- end }}
           - {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
           - {{ .Values.ingress.hosts.static }}-portal.{{ $serverDomain }}
+    {{- end }}
 
       initContainers:
       {{- if .Values.rabbitmq.enabled }}

@@ -5,7 +5,7 @@
 nginx:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/nginx"
-  imageTag: "1.13.7-alpine-2.2.0"
+  imageTag: "1.13.7-alpine-2.5.0"
   pullPolicy: Always
   containerPort: 80
   service:
@@ -25,7 +25,7 @@ nginx:
 php:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/php"
-  imageTag: "7.1-ubuntu14.04-2.2.0"
+  imageTag: "7.1-ubuntu14.04-2.5.0"
   pullPolicy: Always
   containerPort: 9000
   env:
@@ -60,7 +60,7 @@ php:
 node:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/node"
-  imageTag: "8.11.1-slim-2.2.0"
+  imageTag: "8.11.1-slim-2.5.0"
   pullPolicy: Always
   containerPort: 5000
   env:
@@ -86,16 +86,16 @@ source:
   pullPolicy: Always
   saas:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "2.2.0-master-393d6a9c7a"
+    imageTag: "2.5.0-master-393d6a9c7a"
   nodeSaas:
     image: "dockerhub.aysaas.com/library/aysaas/node-saas"
-    imageTag: "2.2.0-release-b937a327"
+    imageTag: "2.5.0-release-b937a327"
   devTools:
     image: "dockerhub.aysaas.com/library/aysaas/dev-tools"
-    imageTag: "2.2.0"
+    imageTag: "2.5.0"
   yarnCache:
     image: "dockerhub.aysaas.com/library/aysaas/yarn-cache"
-    imageTag: "2.2.0"
+    imageTag: "2.5.0"
 
 
 beanstalkd:
