@@ -43,6 +43,7 @@ php:
 
     verbose: ""
     forceBuild: ""
+    debug: ""
 
   service:
     type: ClusterIP
@@ -69,6 +70,7 @@ node:
     nodeSaasType: ""
     verbose: ""
     forceBuild: ""
+    debug: ""
 
   service:
     type: ClusterIP

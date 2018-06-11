@@ -96,6 +96,9 @@ spec:
           - name: FORCE_BUILD
             value: {{ .Values.node.env.forceBuild | quote }}
 
+          - name: DEBUG
+            value: {{ .Values.node.env.debug | quote }}
+
           resources:
 {{ toYaml .Values.node.resources | indent 12 }}
           volumeMounts:

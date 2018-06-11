@@ -149,6 +149,8 @@ spec:
             value: {{ .Values.php.env.verbose | quote }}
           - name: FORCE_BUILD
             value: {{ .Values.php.env.forceBuild | quote }}
+          - name: DEBUG
+            value: {{ .Values.php.env.debug | quote }}
 
           # phpRedisAdmin config
           - name: REDIS_1_HOST
