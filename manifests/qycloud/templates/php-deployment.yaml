@@ -47,6 +47,8 @@ spec:
       {{- range .Values.ingress.hosts }}
           - {{ . }}.{{ $serverDomain }}
       {{- end }}
+          - {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
+          - {{ .Values.ingress.hosts.static }}-portal.{{ $serverDomain }}
 
       initContainers:
       {{- if .Values.rabbitmq.enabled }}
