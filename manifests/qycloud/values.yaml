@@ -15,7 +15,7 @@ nginx:
     #externalPort: 8040
   resources:
     requests:
-      cpu: "200m"
+      cpu: "50m"
       memory: "15Mi"
     limits:
       cpu: "200m"
@@ -52,11 +52,11 @@ php:
 
   resources:
     requests:
-      cpu: "500m"
-      memory: "1512Mi"
+      cpu: "50m"
+      memory: "100Mi"
     limits:
       cpu: "500m"
-      memory: "1512Mi"
+      memory: "1256Mi"
 
 
 node:
@@ -78,8 +78,8 @@ node:
     port: 5000
   resources:
     requests:
-      cpu: "500m"
-      memory: "1512Mi"
+      cpu: "50m"
+      memory: "100Mi"
     limits:
       cpu: "500m"
       memory: "1512Mi"
@@ -112,7 +112,7 @@ beanstalkd:
     port: 11300
   resources:
     requests:
-      cpu: "200m"
+      cpu: "20m"
       memory: "1Mi"
     limits:
       cpu: "200m"
@@ -133,7 +133,7 @@ rabbitmq:
     port: 5672
   resources:
     requests:
-      cpu: "500m"
+      cpu: "50m"
       memory: "100Mi"
     limits:
       cpu: "500m"
@@ -151,8 +151,8 @@ mongo:
     port: 27017
   resources:
     requests:
-      cpu: "500m"
-      memory: "512Mi"
+      cpu: "50m"
+      memory: "100Mi"
     limits:
       cpu: "500m"
       memory: "512Mi"
@@ -169,11 +169,11 @@ mysql:
     port: 3306
   resources:
     requests:
-      cpu: "1000m"
-      memory: "1512Mi"
+      cpu: "100m"
+      memory: "100Mi"
     limits:
       cpu: "1000m"
-      memory: "1512Mi"
+      memory: "1256Mi"
 
 
 redis:
@@ -187,7 +187,7 @@ redis:
     port: 6379
   resources:
     requests:
-      cpu: "200m"
+      cpu: "50m"
       memory: "30Mi"
     limits:
       cpu: "200m"
