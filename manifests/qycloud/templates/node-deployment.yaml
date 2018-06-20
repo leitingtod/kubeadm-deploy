@@ -52,6 +52,22 @@ spec:
           - {{ .Values.ingress.hosts.static }}-portal.{{ $serverDomain }}
     {{- end }}
       initContainers:
+        - name: source
+          image: "{{ .Values.source.nodeSaas.image }}:{{ .Values.source.nodeSaas.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: node-saas-home
+              mountPath: "/opt"
+
+        - name: yarn-cache
+          image: "{{ .Values.source.yarnCache.image }}:{{ .Values.source.yarnCache.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/.yarn_cache /opt']
+          volumeMounts:
+            - name: node-saas-home
+              mountPath: "/opt"
+
       {{- if eq "old" .Values.node.env.nodeSaasType }}
 
         - name: config

@@ -57,6 +57,30 @@ spec:
     {{- end }}
 
       initContainers:
+        - name: source
+          image: "{{ .Values.source.saas.image }}:{{ .Values.source.saas.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+        - name: yarn-cache
+          image: "{{ .Values.source.yarnCache.image }}:{{ .Values.source.yarnCache.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/.yarn_cache /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+        - name: dev-tools
+          image: "{{ .Values.source.devTools.image }}:{{ .Values.source.devTools.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
       {{- if .Values.rabbitmq.enabled }}
 
         - name: init-rabbitmq
