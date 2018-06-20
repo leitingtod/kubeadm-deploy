@@ -1,4 +1,5 @@
-{{- $phpFastCGIHost := printf "%s-%s" .Release.Name "php" -}}
+#{{- $phpFastCGIHost := printf "%s-%s" .Release.Name "php" -}}
+{{- $phpFastCGIHost := 127.0.0.1 -}}
 {{- $phpFastCGIPort := .Values.php.containerPort -}}
 {{- $nodeFastCGIHost := printf "%s-%s" .Release.Name "node" -}}
 {{- $nodeFastCGIPort := .Values.node.containerPort -}}

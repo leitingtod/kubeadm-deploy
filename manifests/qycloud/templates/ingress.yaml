@@ -3,6 +3,7 @@
 {{- $serverDomain := .Values.ingress.domain | lower -}}
 {{- $servicePort := .Values.nginx.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
+{{- $serviceSuffix := "php" -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -34,7 +35,7 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $releaseName }}-nginx
+              serviceName: {{ $releaseName }}-{{ $serviceSuffix }}
               servicePort: {{ $servicePort }}
     {{- end }}
   {{- end }}
@@ -50,13 +51,13 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $releaseName }}-nginx
+              serviceName: {{ $releaseName }}-{{ $serviceSuffix }}
               servicePort: {{ $servicePort }}
     - host: {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
       http:
         paths:
           - path: {{ $ingressPath }}
             backend:
-              serviceName: {{ $releaseName }}-nginx
+              serviceName: {{ $releaseName }}-{{ $serviceSuffix }}
               servicePort: {{ $servicePort }}
 {{- end }}

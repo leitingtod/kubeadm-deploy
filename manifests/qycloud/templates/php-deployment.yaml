@@ -14,6 +14,10 @@ spec:
     - name: php-fastcgi
       port: {{ .Values.php.containerPort }}
       targetPort: {{ .Values.php.containerPort }}
+
+    - name: nginx-http
+      port: {{ .Values.nginx.containerPort }}
+      targetPort: {{ .Values.nginx.containerPort }}
       
   selector:
     app: {{ .Release.Name }}-php
@@ -79,6 +83,30 @@ spec:
 
 
       containers:
+      {{- if .Values.php.withNginx }}
+        - name: nginx
+          image: "{{ .Values.nginx.image }}:{{ .Values.nginx.imageTag }}"
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.nginx.containerPort }}
+            name: nginx-http
+
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+            - name: config
+              mountPath: "/etc/nginx/nginx.conf"
+              subPath: "nginx.conf"
+
+            - name: config
+              mountPath: "/etc/nginx/conf.d/aysaas.conf"
+              subPath: "aysaas.conf"
+      {{- end }}
+
         - name: php
           image: "{{ .Values.php.image }}:{{ .Values.php.imageTag }}"
           imagePullPolicy: {{ .Values.php.pullPolicy }}
@@ -180,6 +208,11 @@ spec:
       - name: git-sshkey
         secret:
           secretName: git-sshkey-default
+
+      # nginx config
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-config
 
       # saas source code
       - name: home

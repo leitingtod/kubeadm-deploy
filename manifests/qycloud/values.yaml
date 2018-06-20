@@ -23,6 +23,7 @@ nginx:
 
 
 php:
+  withNginx: true
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/php"
   imageTag: "7.1-ubuntu14.04-2.5.0"
