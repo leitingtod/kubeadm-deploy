@@ -44,11 +44,11 @@
 - hosts:
   - ftp
   tasks:
-#  - name: Charts | package qycloud chart
-#    become: yes
-#    shell: cp bin/helm* /tmp/helm &&  chmod +x /tmp/helm && export HELM_HOME=/tmp/.helm && /tmp/helm init --client-only --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts && mkdir -p /tmp/charts && rm -rf /tmp/charts/* && /tmp/helm package manifests/qycloud -d /tmp/charts
-#    delegate_to: localhost
-#    tags: charts
+  - name: Charts | package qycloud chart
+    become: yes
+    shell: cp bin/helm* /tmp/helm &&  chmod +x /tmp/helm && export HELM_HOME=/tmp/.helm && /tmp/helm init --client-only --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts && mkdir -p /tmp/charts && rm -rf /tmp/charts/* && /tmp/helm package manifests/qycloud -d /tmp/charts
+    delegate_to: localhost
+    tags: charts
 
   - name: Charts | upload qycloud chart package
     become: yes
