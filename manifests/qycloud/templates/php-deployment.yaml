@@ -57,6 +57,7 @@ spec:
     {{- end }}
 
       initContainers:
+      {{- if not .Values.persistence.sourceReady }}
         - name: source
           image: "{{ .Values.source.saas.image }}:{{ .Values.source.saas.imageTag }}"
           imagePullPolicy: {{ .Values.source.pullPolicy }}
@@ -80,6 +81,7 @@ spec:
           volumeMounts:
             - name: home
               mountPath: "/opt"
+      {{- end }}
 
       {{- if .Values.rabbitmq.enabled }}
 

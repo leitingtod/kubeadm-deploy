@@ -201,7 +201,7 @@ persistence:
 #  volumes:
 #    - name: saas-home
 #      emptyDir: {}
-
+  sourceReady: false
   accessMode: ReadWriteMany
   size: 8Gi
   storageClass: "aysaas-nfs"

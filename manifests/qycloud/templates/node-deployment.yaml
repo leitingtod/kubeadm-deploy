@@ -52,6 +52,7 @@ spec:
           - {{ .Values.ingress.hosts.static }}-portal.{{ $serverDomain }}
     {{- end }}
       initContainers:
+      {{- if not .Values.persistence.sourceReady }}
         - name: source
           image: "{{ .Values.source.nodeSaas.image }}:{{ .Values.source.nodeSaas.imageTag }}"
           imagePullPolicy: {{ .Values.source.pullPolicy }}
@@ -67,6 +68,7 @@ spec:
           volumeMounts:
             - name: node-saas-home
               mountPath: "/opt"
+      {{- end }}
 
       {{- if eq "old" .Values.node.env.nodeSaasType }}
 
