@@ -30,9 +30,19 @@ php:
   pullPolicy: Always
   containerPort: 9000
   env:
-    mongoAppDBName: master
-    mongoAppUser: master
-    mongoAppPass: L9jD7srDBdS7Nfob
+    mongo:
+      default:
+        dbname: master
+        user: master
+        pass: L9jD7srDBdS7Nfob
+      appstore:
+        dbname: appstore
+        user: appstore
+        pass: L9jD7srDBdS7Nfob
+      portal:
+        dbname: portal
+        user: portal
+        pass: L9jD7srDBdS7Nfob
 
     mysqlAppDBName: master
     mysqlAppUser: master

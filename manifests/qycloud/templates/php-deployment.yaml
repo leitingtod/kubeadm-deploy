@@ -168,6 +168,27 @@ spec:
           {{- end}}
 
           # mongo config
+          - name: MONGO_DEFAULT_DBNAME
+            value: {{ .Values.php.env.mongo.default.dbname | quote }}
+          - name: MONGO_DEFAULT_USER
+            value: {{ .Values.php.env.mongo.default.user | quote }}
+          - name: MONGO_DEFAULT_PASS
+            value: {{ .Values.php.env.mongo.default.pass | quote }}
+
+          - name: MONGO_APPSTORE_DBNAME
+            value: {{ .Values.php.env.mongo.appstore.dbname | quote }}
+          - name: MONGO_APPSTORE_USER
+            value: {{ .Values.php.env.mongo.appstore.user | quote }}
+          - name: MONGO_APPSTORE_PASS
+            value: {{ .Values.php.env.mongo.appstore.pass | quote }}
+
+          - name: MONGO_PORTAL_DBNAME
+            value: {{ .Values.php.env.mongo.portal.dbname | quote }}
+          - name: MONGO_PORTAL_USER
+            value: {{ .Values.php.env.mongo.portal.user | quote }}
+          - name: MONGO_PORTAL_PASS
+            value: {{ .Values.php.env.mongo.portal.pass | quote }}
+
           - name: MONGO_APP_DBNAME
             value: {{ .Values.php.env.mongoAppDBName | quote }}
           - name: MONGO_APP_USER
