@@ -16,10 +16,10 @@ nginx:
   resources:
     requests:
       cpu: "50m"
-      memory: "15Mi"
+      memory: "10Mi"
     limits:
       cpu: "200m"
-      memory: "100Mi"
+      memory: "50Mi"
 
 
 php:
@@ -66,7 +66,7 @@ php:
       memory: "100Mi"
     limits:
       cpu: "500m"
-      memory: "1256Mi"
+      memory: "1000Mi"
 
 
 node:
@@ -89,10 +89,10 @@ node:
   resources:
     requests:
       cpu: "50m"
-      memory: "100Mi"
+      memory: "300Mi"
     limits:
       cpu: "500m"
-      memory: "1512Mi"
+      memory: "1000Mi"
 
 
 source:
@@ -126,7 +126,7 @@ beanstalkd:
       memory: "1Mi"
     limits:
       cpu: "200m"
-      memory: "100Mi"
+      memory: "80Mi"
 
 
 rabbitmq:
@@ -147,7 +147,7 @@ rabbitmq:
       memory: "100Mi"
     limits:
       cpu: "500m"
-      memory: "512Mi"
+      memory: "300Mi"
 
 
 mongo:
@@ -162,10 +162,10 @@ mongo:
   resources:
     requests:
       cpu: "50m"
-      memory: "100Mi"
+      memory: "70Mi"
     limits:
       cpu: "500m"
-      memory: "512Mi"
+      memory: "300Mi"
 
 
 mysql:
@@ -180,7 +180,7 @@ mysql:
   resources:
     requests:
       cpu: "100m"
-      memory: "100Mi"
+      memory: "500Mi"
     limits:
       cpu: "1000m"
       memory: "1256Mi"
@@ -198,10 +198,10 @@ redis:
   resources:
     requests:
       cpu: "50m"
-      memory: "30Mi"
+      memory: "1Mi"
     limits:
       cpu: "200m"
-      memory: "256Mi"
+      memory: "50Mi"
 
 
 persistence:
