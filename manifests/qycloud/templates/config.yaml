@@ -6,6 +6,7 @@
 
 {{- $externalPort := .Values.nginx.service.externalPort -}}
 {{- $rabbitmqHost := printf "%s-%s" .Release.Name "rabbitmq" -}}
+{{- $mongoHost := printf "%s-%s" .Release.Name "mongo" -}}
 
 {{- $serverDomain := .Values.ingress.domain | lower -}}
 
@@ -20,6 +21,8 @@
 
 {{- $beanstalkConsoleServerName := .Values.ingress.hosts.beanstalk | lower -}}
 {{- $rabbitmqCtlServerName := .Values.ingress.hosts.rabbitmq | lower -}}
+{{- $mongoAdminServerName := .Values.ingress.hosts.mongo | lower -}}
+
 
 kind: ConfigMap
 apiVersion: v1
@@ -343,6 +346,24 @@ data:
         }
     }
   {{- end }}
+    server {
+        listen 80;
+        listen 7777;
+
+        server_name {{ $mongoAdminServerName }}.{{$serverDomain}};
+
+        error_log /var/log/nginx/mongo-console-error.log error;
+        access_log /var/log/nginx/mongo-console-access.log combined;
+
+        location / {
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+            proxy_pass http://{{ $mongoHost }}:8081;
+        }
+    }
   nginx.conf: |-
     # For more information on configuration, see:
     #   * Official English Documentation: http://nginx.org/en/docs/

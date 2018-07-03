@@ -5,7 +5,7 @@
 nginx:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/nginx"
-  imageTag: "1.13.7-alpine-2.5.0"
+  imageTag: "1.13.7-alpine-2.5.1"
   pullPolicy: Always
   containerPort: 80
   service:
@@ -26,7 +26,7 @@ php:
   withNginx: true
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/php"
-  imageTag: "7.1-ubuntu14.04-2.5.0"
+  imageTag: "7.1-ubuntu14.04-2.5.1"
   pullPolicy: Always
   containerPort: 9000
   env:
@@ -72,7 +72,7 @@ php:
 node:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/node"
-  imageTag: "8.11.1-slim-2.5.0"
+  imageTag: "8.11.1-slim-2.5.1"
   pullPolicy: Always
   containerPort: 5000
   env:
@@ -99,10 +99,10 @@ source:
   pullPolicy: Always
   saas:
     image: "dockerhub.aysaas.com/library/aysaas/saas"
-    imageTag: "2.5.0-master-0866f04c40"
+    imageTag: "2.5.0-master-977ecf82e2"
   nodeSaas:
     image: "dockerhub.aysaas.com/library/aysaas/node-saas"
-    imageTag: "2.5.0-master-bc4d91ce"
+    imageTag: "2.5.0-master-2c6ba127"
   devTools:
     image: "dockerhub.aysaas.com/library/aysaas/dev-tools"
     imageTag: "2.2.0"
@@ -144,7 +144,7 @@ rabbitmq:
   resources:
     requests:
       cpu: "50m"
-      memory: "100Mi"
+      memory: "70Mi"
     limits:
       cpu: "500m"
       memory: "300Mi"
@@ -166,6 +166,23 @@ mongo:
     limits:
       cpu: "500m"
       memory: "300Mi"
+
+mongoadmin:
+  replicaCount: 1
+  image: "dockerhub.aysaas.com/library/mongo-express"
+  imageTag: "0.45"
+  pullPolicy: Always
+  containerPort: 8081
+  service:
+    type: ClusterIP
+    port: 8081
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "50Mi"
+    limits:
+      cpu: "200m"
+      memory: "100Mi"
 
 
 mysql:
@@ -225,16 +242,17 @@ ingress:
   path: /
   domain: default.com
   hosts:
+    portal: portal
     master: www
     static: static
     fileio: fileio
     nodesaas: nodestatic
     xhprof: xhprof
-    beanstalk: beanstalk
-    rabbitmq: rabbitmq
+    mongo: mongo
     mysql: mysql
     redis: redis
-    portal: portal
+    rabbitmq: rabbitmq
+    beanstalk: beanstalk
 
   tls: []
   #  - secretName: chart-example-tls

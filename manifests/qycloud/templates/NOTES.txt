@@ -33,6 +33,7 @@
    xhprof            : http://{{ .Values.ingress.hosts.xhprof }}.{{ $serverDomain }}:{{$externalPort}}
    phpMyAdmin        : http://{{ .Values.ingress.hosts.mysql }}.{{ $serverDomain }}:{{$externalPort}}
    phpRedisAdmin     : http://{{ .Values.ingress.hosts.redis }}.{{ $serverDomain }}:{{$externalPort}}
+   mongoAdmin        : http://{{ .Values.ingress.hosts.redis }}.{{ $serverDomain }}:{{$externalPort}}
  {{- if .Values.rabbitmq.enabled }}
    rabbitmq manager  : http://{{ .Values.ingress.hosts.rabbitmq }}.{{ $serverDomain }}:{{$externalPort}} (user: {{ .Values.rabbitmq.env.user }} pass: {{ .Values.rabbitmq.env.pass }})
  {{- else }}
@@ -42,6 +43,7 @@
    xhprof            : http://{{ .Values.ingress.hosts.xhprof }}.{{ $serverDomain }}
    phpMyAdmin        : http://{{ .Values.ingress.hosts.mysql }}.{{ $serverDomain }}
    phpRedisAdmin     : http://{{ .Values.ingress.hosts.redis }}.{{ $serverDomain }}
+   mongoAdmin        : http://{{ .Values.ingress.hosts.redis }}.{{ $serverDomain }}
  {{- if .Values.rabbitmq.enabled }}
    rabbitmq manager  : http://{{ .Values.ingress.hosts.rabbitmq }}.{{ $serverDomain }} (user: {{ .Values.rabbitmq.env.user }} pass: {{ .Values.rabbitmq.env.pass }})
  {{- else }}

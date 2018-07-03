@@ -10,8 +10,12 @@ metadata:
 spec:
   type: {{ .Values.mongo.service.type }}
   ports:
-    - port: {{ .Values.mongo.service.port }}
+    - name: mongo-tcp
+      port: {{ .Values.mongo.service.port }}
       targetPort: {{ .Values.mongo.containerPort }}
+    - name: console-http
+      port: {{ .Values.mongoadmin.service.port }}
+      targetPort: {{ .Values.mongoadmin.containerPort }}
   selector:
     app: {{ .Release.Name }}-mongo
     release: {{ .Release.Name }}
@@ -49,6 +53,19 @@ spec:
           resources:
 {{ toYaml .Values.mongo.resources | indent 12 }}
 
+        - name: console
+          image: "{{ .Values.mongoadmin.image }}:{{ .Values.mongoadmin.imageTag }}"
+          imagePullPolicy: {{ .Values.mongoadmin.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.mongoadmin.containerPort }}
+
+          env:
+          - name: ME_CONFIG_MONGODB_SERVER
+            value: {{ .Release.Name }}-mongo
+
+          resources:
+{{ toYaml .Values.mongoadmin.resources | indent 12 }}
 
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
