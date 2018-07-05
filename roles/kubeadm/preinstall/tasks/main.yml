@@ -2,10 +2,10 @@
   become: yes
   apt: name={{ item }} state=present update_cache=yes
   with_items:
-  - kubeadm
-  - kubectl
-  - kubelet
-  - kubernetes-cni
+  - kubeadm=1.10.3-00
+  - kubectl=1.10.3-00
+  - kubelet=1.10.3-00
+  - kubernetes-cni=0.6.0-00
 
 - name: Kerbernetes | Config kubelet pod-infra-container-image
   become: yes

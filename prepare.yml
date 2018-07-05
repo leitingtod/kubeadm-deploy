@@ -9,6 +9,7 @@
   - kube-cluster
   roles:
   - { role: kubeadm/preinstall, tags: [ "kubeadm-preinstall" ] }
+  tags: kubeadm-preinstall
 
 - hosts:
   - kube-cluster
