@@ -27,6 +27,7 @@ spec:
   {{- end }}
 {{- end }}
   rules:
+  {{- $phpWithNginx := .Values.php.withNginx -}}
   {{- range $key, $value := .Values.ingress.hosts }}
     {{- if not (eq $key "portal") }}
     - host: {{ $value }}.{{ $serverDomain }}
@@ -34,7 +35,11 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
+            {{- if $phpWithNginx }}
+              serviceName: {{ $releaseName }}-php
+            {{- else }}
               serviceName: {{ $releaseName }}-nginx
+            {{- end }}
               servicePort: {{ $servicePort }}
     {{- end }}
   {{- end }}
@@ -50,13 +55,21 @@ spec:
         paths:
           - path: {{ $ingressPath }}
             backend:
+            {{- if .Values.php.withNginx }}
+              serviceName: {{ $releaseName }}-php
+            {{- else }}
               serviceName: {{ $releaseName }}-nginx
+            {{- end }}
               servicePort: {{ $servicePort }}
     - host: {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
       http:
         paths:
           - path: {{ $ingressPath }}
             backend:
+            {{- if .Values.php.withNginx }}
+              serviceName: {{ $releaseName }}-php
+            {{- else }}
               serviceName: {{ $releaseName }}-nginx
+            {{- end }}
               servicePort: {{ $servicePort }}
 {{- end }}

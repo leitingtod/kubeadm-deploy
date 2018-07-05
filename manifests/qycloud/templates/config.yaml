@@ -1,19 +1,25 @@
 {{- $phpFastCGIHost := printf "%s-%s" .Release.Name "php" -}}
 {{- $phpFastCGIPort := .Values.php.containerPort -}}
+
 {{- $nodeFastCGIHost := printf "%s-%s" .Release.Name "node" -}}
 {{- $nodeFastCGIPort := .Values.node.containerPort -}}
+
 {{- $externalPort := .Values.nginx.service.externalPort -}}
-{{- $serverDomain := .Values.ingress.domain | lower -}}
-{{- $masterServerName := .Values.ingress.hosts.master -}}
-{{- $staticServerName := .Values.ingress.hosts.static -}}
-{{- $fileioServerName := .Values.ingress.hosts.fileio -}}
-{{- $nodesaasServerName := .Values.ingress.hosts.nodesaas -}}
-{{- $xhprofServerName := .Values.ingress.hosts.xhprof -}}
-{{- $mysqlConsoleServerName := .Values.ingress.hosts.mysql -}}
-{{- $redisConsoleServerName := .Values.ingress.hosts.redis -}}
-{{- $beanstalkConsoleServerName := .Values.ingress.hosts.beanstalk -}}
 {{- $rabbitmqHost := printf "%s-%s" .Release.Name "rabbitmq" -}}
-{{- $rabbitmqCtlServerName := .Values.ingress.hosts.rabbitmq -}}
+
+{{- $serverDomain := .Values.ingress.domain | lower -}}
+
+{{- $masterServerName := .Values.ingress.hosts.master | lower -}}
+{{- $staticServerName := .Values.ingress.hosts.static | lower -}}
+{{- $fileioServerName := .Values.ingress.hosts.fileio | lower -}}
+{{- $nodesaasServerName := .Values.ingress.hosts.nodesaas | lower -}}
+
+{{- $xhprofServerName := .Values.ingress.hosts.xhprof | lower -}}
+{{- $mysqlConsoleServerName := .Values.ingress.hosts.mysql | lower -}}
+{{- $redisConsoleServerName := .Values.ingress.hosts.redis | lower -}}
+
+{{- $beanstalkConsoleServerName := .Values.ingress.hosts.beanstalk | lower -}}
+{{- $rabbitmqCtlServerName := .Values.ingress.hosts.rabbitmq | lower -}}
 
 kind: ConfigMap
 apiVersion: v1
@@ -66,7 +72,11 @@ data:
       }
 
       location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
         fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
@@ -111,7 +121,11 @@ data:
       }
 
       location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
         fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
@@ -163,7 +177,11 @@ data:
       }
 
       location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
         fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
@@ -186,7 +204,11 @@ data:
       }
 
       location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
         fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
@@ -217,7 +239,11 @@ data:
       }
 
       location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
         fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
@@ -247,7 +273,11 @@ data:
       }
 
       location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
         fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }
@@ -278,7 +308,11 @@ data:
       }
 
       location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
         fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
       }

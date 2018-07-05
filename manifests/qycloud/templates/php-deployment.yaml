@@ -14,6 +14,10 @@ spec:
     - name: php-fastcgi
       port: {{ .Values.php.containerPort }}
       targetPort: {{ .Values.php.containerPort }}
+
+    - name: nginx-http
+      port: {{ .Values.nginx.containerPort }}
+      targetPort: {{ .Values.nginx.containerPort }}
       
   selector:
     app: {{ .Release.Name }}-php
@@ -53,6 +57,32 @@ spec:
     {{- end }}
 
       initContainers:
+      {{- if not .Values.persistence.sourceReady }}
+        - name: source
+          image: "{{ .Values.source.saas.image }}:{{ .Values.source.saas.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+        - name: yarn-cache
+          image: "{{ .Values.source.yarnCache.image }}:{{ .Values.source.yarnCache.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/.yarn_cache /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+        - name: dev-tools
+          image: "{{ .Values.source.devTools.image }}:{{ .Values.source.devTools.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+      {{- end }}
+
       {{- if .Values.rabbitmq.enabled }}
 
         - name: init-rabbitmq
@@ -79,6 +109,30 @@ spec:
 
 
       containers:
+      {{- if .Values.php.withNginx }}
+        - name: nginx
+          image: "{{ .Values.nginx.image }}:{{ .Values.nginx.imageTag }}"
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.nginx.containerPort }}
+            name: nginx-http
+
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+            - name: config
+              mountPath: "/etc/nginx/nginx.conf"
+              subPath: "nginx.conf"
+
+            - name: config
+              mountPath: "/etc/nginx/conf.d/aysaas.conf"
+              subPath: "aysaas.conf"
+      {{- end }}
+
         - name: php
           image: "{{ .Values.php.image }}:{{ .Values.php.imageTag }}"
           imagePullPolicy: {{ .Values.php.pullPolicy }}
@@ -114,6 +168,27 @@ spec:
           {{- end}}
 
           # mongo config
+          - name: MONGO_DEFAULT_DBNAME
+            value: {{ .Values.php.env.mongo.default.dbname | quote }}
+          - name: MONGO_DEFAULT_USER
+            value: {{ .Values.php.env.mongo.default.user | quote }}
+          - name: MONGO_DEFAULT_PASS
+            value: {{ .Values.php.env.mongo.default.pass | quote }}
+
+          - name: MONGO_APPSTORE_DBNAME
+            value: {{ .Values.php.env.mongo.appstore.dbname | quote }}
+          - name: MONGO_APPSTORE_USER
+            value: {{ .Values.php.env.mongo.appstore.user | quote }}
+          - name: MONGO_APPSTORE_PASS
+            value: {{ .Values.php.env.mongo.appstore.pass | quote }}
+
+          - name: MONGO_PORTAL_DBNAME
+            value: {{ .Values.php.env.mongo.portal.dbname | quote }}
+          - name: MONGO_PORTAL_USER
+            value: {{ .Values.php.env.mongo.portal.user | quote }}
+          - name: MONGO_PORTAL_PASS
+            value: {{ .Values.php.env.mongo.portal.pass | quote }}
+
           - name: MONGO_APP_DBNAME
             value: {{ .Values.php.env.mongoAppDBName | quote }}
           - name: MONGO_APP_USER
@@ -180,6 +255,11 @@ spec:
       - name: git-sshkey
         secret:
           secretName: git-sshkey-default
+
+      # nginx config
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-config
 
       # saas source code
       - name: home
