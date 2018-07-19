@@ -3,3 +3,4 @@ d0y8nt.451u0ojelwhkeh35
 
 kubeadm_draint: kubectl drain <node name> --delete-local-data --force --ignore-daemonsets
 kubeadm_delete: kubectl delete node <node name>
+kubeadm_join_token: kubeadm token create --print-join-command

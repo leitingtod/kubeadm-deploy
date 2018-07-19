@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 
 # harbor 1.4.0
@@ -11,3 +12,4 @@ kubectl create secret docker-registry harbor-registry-secret \
 kubectl create secret generic git-sshkey-default --from-file=ssh_privatekey=/root/.ssh/id_rsa --from-file=ssh_publickey=/root/.ssh/id_rsa.pub
 
 kubectl apply -f ./default-limit-range.yml
+kubectl apply -f ./default-resource-quota.yml
