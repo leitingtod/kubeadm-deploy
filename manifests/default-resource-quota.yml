@@ -4,5 +4,5 @@ metadata:
   name: default-resource-quota
 spec:
   hard:
-    count/deployments.extensions: 108
+    count/deployments.extensions: 102
     resourcequotas: 1
