@@ -34,6 +34,10 @@ localhost ansible_connection=local ansible_ssh_user=anyuan ansible_ssh_pass=123 
 
 192.168.0.247 NODE_NAME=node6.az1 NODE_IP="192.168.0.247" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
 
+192.168.0.170 NODE_NAME=node7.az1 NODE_IP="192.168.0.170" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
+
+192.168.0.171 NODE_NAME=node8.az1 NODE_IP="192.168.0.171" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
+
 #192.168.0.227 NODE_NAME=node255.az1 NODE_IP="192.168.0.227" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
 
 #192.168.0.174 NODE_NAME=node1.az3 NODE_IP="192.168.0.174" ansible_ssh_user=anyuan ansible_ssh_pass=aykj83752661 ansible_sudo_pass=aykj83752661
