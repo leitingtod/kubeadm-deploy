@@ -63,10 +63,10 @@ php:
   resources:
     requests:
       cpu: "500m"
-      memory: "1000Mi"
+      memory: "1256Mi"
     limits:
       cpu: "500m"
-      memory: "1000Mi"
+      memory: "1256Mi"
 
 
 node:
