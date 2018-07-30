@@ -18,11 +18,11 @@ spec:
     - name: nginx-http
       port: {{ .Values.nginx.containerPort }}
       targetPort: {{ .Values.nginx.containerPort }}
-      
+
   selector:
     app: {{ .Release.Name }}-php
     release: {{ .Release.Name }}
-    
+
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -86,25 +86,29 @@ spec:
       {{- if .Values.rabbitmq.enabled }}
 
         - name: init-rabbitmq
-          image: busybox
+          image: dockerhub.aysaas.com/library/busybox:latest
           command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-rabbitmq; do echo waiting for rabbitmq; sleep 2; done;']
       {{- else }}
 
         - name: init-beanstalkd
-          image: busybox
+          image: dockerhub.aysaas.com/library/busybox:latest
+
           command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
       {{- end }}
 
         - name: init-mongo
-          image: busybox
+          image: dockerhub.aysaas.com/library/busybox:latest
+
           command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-mongo; do echo waiting for mongo; sleep 2; done;']
 
         - name: init-mysql
-          image: busybox
+          image: dockerhub.aysaas.com/library/busybox:latest
+
           command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-mysql; do echo waiting for mysql; sleep 2; done;']
 
         - name: init-redis
-          image: busybox
+          image: dockerhub.aysaas.com/library/busybox:latest
+
           command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-redis; do echo waiting for redis; sleep 2; done;']
 
 

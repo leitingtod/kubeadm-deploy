@@ -73,7 +73,7 @@ spec:
       {{- if eq "old" .Values.node.env.nodeSaasType }}
 
         - name: config
-          image: busybox
+          image: dockerhub.aysaas.com/library/busybox:latest
           command: ['sh', '-c', 'ls /opt; cp -f /opt/config/development.js /opt/node-saas-old/config']
           volumeMounts:
             - name: node-saas-home
