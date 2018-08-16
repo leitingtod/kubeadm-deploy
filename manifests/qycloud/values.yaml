@@ -63,7 +63,7 @@ php:
   resources:
     requests:
       cpu: "500m"
-      memory: "1256Mi"
+      memory: "256Mi"
     limits:
       cpu: "500m"
       memory: "1256Mi"
@@ -89,7 +89,7 @@ node:
   resources:
     requests:
       cpu: "500m"
-      memory: "1000Mi"
+      memory: "256Mi"
     limits:
       cpu: "500m"
       memory: "1000Mi"
