@@ -10,7 +10,7 @@ NAME=nginx-ingress
 values_file=/tmp/values.yml
 
 echo "
-rabc:
+rbac:
   create: true
 controller:
   image:
@@ -28,10 +28,10 @@ defaultBackend:
 " >${values_file}
 
 if [ ${1}x == "delx" ]; then
-	helm del --purge ${NAME}
+    helm del --purge ${NAME}
 else
-	helm install --name ${NAME} stable/nginx-ingress --version 0.8.9 --namespace kube-system -f ${values_file}
+    helm install --name ${NAME} stable/nginx-ingress --version 0.8.9 --namespace kube-system -f ${values_file}
 
-	kubectl patch -n kube-system deploy ${NAME}-nginx-ingress-controller -p "$(cat ./tolerations.json)"
-	kubectl patch -n kube-system deploy ${NAME}-nginx-ingress-default-backend -p "$(cat ./tolerations.json)"
+    kubectl patch -n kube-system deploy ${NAME}-nginx-ingress-controller -p "$(cat ./tolerations.json)"
+    kubectl patch -n kube-system deploy ${NAME}-nginx-ingress-default-backend -p "$(cat ./tolerations.json)"
 fi
