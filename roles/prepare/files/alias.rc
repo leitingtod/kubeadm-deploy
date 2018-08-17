@@ -63,3 +63,5 @@ alias scr='sudo systemctl daemon-reload'
 alias scs='sudo systemctl status'
 alias scu='sudo systemctl restart'
 alias scd='sudo systemctl stop'
+
+alias pp='sudo chown 1000:1000 -R .'
