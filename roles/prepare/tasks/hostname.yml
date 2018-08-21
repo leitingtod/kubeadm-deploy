@@ -13,6 +13,15 @@
     state: present
   tags: hostname, set-hostname
 
+- name: Hosts | Add dockerhub to /etc/hosts
+  become: yes
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^192\.168\.0\.228[ \t]+localhost'
+    line: '192.168.0.228 dockerhub.aysaas.com'
+    state: present
+  tags: hosts, set-dockerhub-host
+
 - name: Hosts | Add cluster node to /etc/hosts
   become: yes
   blockinfile:
@@ -25,4 +34,17 @@
     create: yes
     backup: yes
     marker: "# Ansible Inventory Hosts {mark}"
-  tags: hostname, set-hosts
+  tags: hosts, set-k8s-cluster-hosts
+
+- name: Status | Check /etc/hosts
+  become: yes
+  shell: cat /etc/hosts
+  register: shell_result
+  tags: hosts, get-hosts
+
+- name: Status | Check hostname
+  debug:
+    var: shell_result.stdout_lines
+  tags: hosts, get-hosts
+
+
