@@ -218,7 +218,7 @@ redis:
       memory: "1Mi"
     limits:
       cpu: "200m"
-      memory: "50Mi"
+      memory: "100Mi"
 
 
 persistence:
