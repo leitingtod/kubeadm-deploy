@@ -5,16 +5,33 @@
 
 NAME=grafana
 
+values_file=/tmp/values.yml
 
-if [ ${1}x == "delx" ]; then
-    helm del --purge ${NAME}
-else
-    helm install --name ${NAME} stable/grafana \
-        --namespace kube-system \
-        --set rbac.create=true \
-        --set server.persistentVolume.enabled=true \
-        --set server.persistentVolume.storageClass="aysaas-nfs-once" \
-        --set server.image=grafana/grafana:5.0.4
+echo "
+server:
+  image: grafana/grafana:latest
+  ingress:
+    enabled: true
+    hosts:
+      - grafana.aysaas.com
+  adminPassword: admin123
+  persistentVolume:
+    enabled: true
+    storageClass: \"aysaas-nfs\"
+" >${values_file}
 
-    kubectl patch -n kube-system deploy ${NAME}-grafana -p "$(cat ./tolerations.json)"
-fi
+case "${1}" in
+    del)
+        helm del --purge ${NAME}
+        ;;
+    upgrade)
+        helm upgrade ${NAME} stable/grafana --namespace kube-system -f ${values_file}
+        ;;
+    install)
+        helm install --name ${NAME} stable/grafana --namespace kube-system -f ${values_file}
+        kubectl patch -n kube-system deploy ${NAME}-grafana -p "$(cat ./tolerations.json)"
+        ;;
+    *)
+        echo "Error: only support subcommand install | upgrade | del !"
+        ;;
+esac
