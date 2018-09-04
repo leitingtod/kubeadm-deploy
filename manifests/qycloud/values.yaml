@@ -26,7 +26,7 @@ php:
   withNginx: true
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/php"
-  imageTag: "7.1-ubuntu14.04-2.5.2"
+  imageTag: "7.1-ubuntu14.04-2.5.3"
   pullPolicy: Always
   containerPort: 9000
   env:
@@ -72,7 +72,7 @@ php:
 node:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/node"
-  imageTag: "8.11.1-slim-2.5.2"
+  imageTag: "8.11.1-slim-2.5.3"
   pullPolicy: Always
   containerPort: 5000
   env:

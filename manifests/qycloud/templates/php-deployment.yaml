@@ -122,6 +122,9 @@ spec:
           - containerPort: {{ .Values.nginx.containerPort }}
             name: nginx-http
 
+          command: ["/bin/sh"]
+          args: ["-c", "echo 'preparing nginx config ...'; file=/opt/config/aysaas.conf; [ -f $file ] && cp $file /etc/nginx/conf.d/aysaas.conf; file=/opt/config/nginx.conf; [ -f $file ] && cp $file /etc/nginx/nginx.conf; echo 'ok'; nginx -g \"daemon off;\";"]
+
           resources:
 {{ toYaml .Values.nginx.resources | indent 12 }}
           volumeMounts:
@@ -129,12 +132,7 @@ spec:
               mountPath: "/opt"
 
             - name: config
-              mountPath: "/etc/nginx/nginx.conf"
-              subPath: "nginx.conf"
-
-            - name: config
-              mountPath: "/etc/nginx/conf.d/aysaas.conf"
-              subPath: "aysaas.conf"
+              mountPath: "/opt/config"
       {{- end }}
 
         - name: php
