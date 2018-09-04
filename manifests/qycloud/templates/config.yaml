@@ -100,7 +100,7 @@ data:
         deny all;
       }
 
-      location ~* \.(eot|ttf|woff)$ {
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
         add_header Access-Control-Allow-Origin *;
       }
 
@@ -156,7 +156,7 @@ data:
         deny all;
       }
 
-      location ~* \.(eot|ttf|woff)$ {
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
         add_header Access-Control-Allow-Origin *;
       }
 
@@ -237,7 +237,7 @@ data:
         add_header Content-Type text/css;
       }
 
-      location ~* \.(eot|ttf|woff)$ {
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
         add_header Access-Control-Allow-Origin *;
       }
 
@@ -271,7 +271,7 @@ data:
         add_header Content-Type text/css;
       }
 
-      location ~* \.(eot|ttf|woff)$ {
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
         add_header Access-Control-Allow-Origin *;
       }
 
@@ -306,7 +306,7 @@ data:
         add_header Content-Type text/css;
       }
 
-      location ~* \.(eot|ttf|woff)$ {
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
         add_header Access-Control-Allow-Origin *;
       }
 
