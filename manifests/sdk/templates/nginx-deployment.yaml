@@ -1,0 +1,105 @@
+{{- $serverDomain := .Values.ingress.domain | lower -}}
+{{- if not .Values.php.withNginx }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-nginx
+  labels:
+    app: {{ .Release.Name }}-nginx
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.nginx.service.type }}
+  ports:
+    - name: nginx-http1
+      port: {{ .Values.nginx.service.port }}
+      targetPort: {{ .Values.nginx.containerPort }}
+
+  selector:
+    app: {{ .Release.Name }}-nginx
+    release: {{ .Release.Name }}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-nginx
+  labels:
+    app: {{ .Release.Name }}-nginx
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.nginx.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-nginx
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-nginx
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image }}:{{ .Values.nginx.imageTag }}"
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.nginx.containerPort }}
+
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+            - name: config
+              mountPath: "/etc/nginx/nginx.conf"
+              subPath: "nginx.conf"
+
+            - name: config
+              mountPath: "/etc/nginx/conf.d/aysaas.conf"
+              subPath: "aysaas.conf"
+
+      volumes:
+      {{- if .Values.persistence.volumes }}
+{{ toYaml .Values.persistence.volumes | indent 6 }}
+      {{- end }}
+      # nginx config
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-config
+
+      # saas source code
+      - name: home
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}
+      {{- else }}
+        emptyDir: {}
+      {{ end }}
+
+
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+    {{- end }}
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end}}

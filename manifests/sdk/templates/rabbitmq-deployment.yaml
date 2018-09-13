@@ -1,0 +1,101 @@
+{{- if .Values.rabbitmq.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-rabbitmq
+  labels:
+    app: {{ .Release.Name }}-rabbitmq
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.rabbitmq.service.type }}
+  ports:
+  - name: epmd
+    port: 4369
+    targetPort: epmd
+  - name: amqp
+    port: 5672
+    targetPort: amqp2
+  - name: dist
+    port: 25672
+    targetPort: dist
+  - name: stats
+    port: 15672
+    targetPort: stats2
+
+  selector:
+    app: {{ .Release.Name }}-rabbitmq
+    release: {{ .Release.Name }}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-rabbitmq
+  labels:
+    app: {{ .Release.Name }}-rabbitmq
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.rabbitmq.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-rabbitmq
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-rabbitmq
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: rabbitmq
+          image: "{{ .Values.rabbitmq.image }}:{{ .Values.rabbitmq.imageTag }}"
+          imagePullPolicy: {{ .Values.rabbitmq.pullPolicy }}
+
+          ports:
+          - name: epmd
+            containerPort: 4369
+          - name: amqp1
+            containerPort: 5671
+          - name: amqp2
+            containerPort: 5672
+          - name: dist
+            containerPort: 25672
+          - name: stats1
+            containerPort: 15671
+          - name: stats2
+            containerPort: 15672
+
+          env:
+          - name: RABBITMQ_DEFAULT_USER
+            value: {{ .Values.rabbitmq.env.user | quote }}
+
+          - name: RABBITMQ_DEFAULT_PASS
+            value: {{ .Values.rabbitmq.env.pass | quote }}
+
+          resources:
+{{ toYaml .Values.rabbitmq.resources | indent 12 }}
+
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+    {{- end }}
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}

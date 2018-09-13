@@ -1,0 +1,110 @@
+{{- $serverDomain := .Values.ingress.domain | lower -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-sdk
+  labels:
+    app: {{ .Release.Name }}-sdk
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.sdk.service.type }}
+  ports:
+    - name: sdk-http
+      port: {{ .Values.sdk.service.port }}
+      targetPort: {{ .Values.sdk.containerPort }}
+
+  selector:
+    app: {{ .Release.Name }}-sdk
+    release: {{ .Release.Name }}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-sdk
+  labels:
+    app: {{ .Release.Name }}-sdk
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.sdk.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-sdk
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-sdk
+        release: {{ .Release.Name }}
+    spec:
+    {{- if not .Values.nginx.service.externalPort }}
+      hostAliases:
+      - ip: "192.168.0.226"
+        hostnames:
+      {{- range .Values.ingress.hosts }}
+          - {{ . }}.{{ $serverDomain }}
+      {{- end }}
+          - {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
+          - {{ .Values.ingress.hosts.static }}-portal.{{ $serverDomain }}
+    {{- end }}
+      containers:
+        - name: sdk
+          image: "{{ .Values.sdk.image }}:{{ .Values.sdk.imageTag }}"
+          imagePullPolicy: {{ .Values.sdk.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.sdk.containerPort }}
+
+          env:
+          - name: SHOW_CONFIG
+            value: {{ .Values.sdk.env.showConfig | quote }}
+
+          resources:
+{{ toYaml .Values.sdk.resources | indent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: "/usr/local/tomcat/webapps"
+            - name: config
+              mountPath: "/usr/local/tomcat/webapps/sdk-config"
+
+      volumes:
+      {{- if .Values.persistence.volumes }}
+{{ toYaml .Values.persistence.volumes | indent 6 }}
+      {{- end }}
+      # sdk-saas config
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-config
+
+      # sdk source code
+      - name: home
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default printf "%s-%s" .Release.Name "sdk" }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
+
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+    {{- end }}
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

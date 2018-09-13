@@ -1,0 +1,73 @@
+{{- if not .Values.rabbitmq.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-beanstalkd
+  labels:
+    app: {{ .Release.Name }}-beanstalkd
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.beanstalkd.service.type }}
+  ports:
+    - port: {{ .Values.beanstalkd.service.port }}
+      targetPort: {{ .Values.beanstalkd.containerPort }}
+  selector:
+    app: {{ .Release.Name }}-beanstalkd
+    release: {{ .Release.Name }}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-beanstalkd
+  labels:
+    app: {{ .Release.Name }}-beanstalkd
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.beanstalkd.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-beanstalkd
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-beanstalkd
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: beanstalkd
+          image: "{{ .Values.beanstalkd.image }}:{{ .Values.beanstalkd.imageTag }}"
+          imagePullPolicy: {{ .Values.beanstalkd.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.beanstalkd.containerPort }}
+
+          resources:
+{{ toYaml .Values.beanstalkd.resources | indent 12 }}
+
+
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+    {{- end }}
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}

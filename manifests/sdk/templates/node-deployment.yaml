@@ -1,0 +1,174 @@
+{{- if not .Values.sdk }}
+{{- $serverDomain := .Values.ingress.domain | lower -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-node
+  labels:
+    app: {{ .Release.Name }}-node
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.node.service.type }}
+  ports:
+    - name: node-http
+      port: {{ .Values.node.service.port }}
+      targetPort: {{ .Values.node.containerPort }}
+
+  selector:
+    app: {{ .Release.Name }}-node
+    release: {{ .Release.Name }}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-node
+  labels:
+    app: {{ .Release.Name }}-node
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.node.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-node
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-node
+        release: {{ .Release.Name }}
+    spec:
+    {{- if not .Values.nginx.service.externalPort }}
+      hostAliases:
+      - ip: "192.168.0.226"
+        hostnames:
+      {{- range .Values.ingress.hosts }}
+          - {{ . }}.{{ $serverDomain }}
+      {{- end }}
+          - {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
+          - {{ .Values.ingress.hosts.static }}-portal.{{ $serverDomain }}
+    {{- end }}
+      initContainers:
+      {{- if not .Values.persistence.sourceReady }}
+        - name: source
+          image: "{{ .Values.source.nodeSaas.image }}:{{ .Values.source.nodeSaas.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: node-saas-home
+              mountPath: "/opt"
+
+        - name: yarn-cache
+          image: "{{ .Values.source.yarnCache.image }}:{{ .Values.source.yarnCache.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/.yarn_cache /opt']
+          volumeMounts:
+            - name: node-saas-home
+              mountPath: "/opt"
+      {{- end }}
+
+      {{- if eq "old" .Values.node.env.nodeSaasType }}
+
+        - name: config
+          image: dockerhub.aysaas.com/library/busybox:latest
+          command: ['sh', '-c', 'ls /opt; cp -f /opt/config/development.js /opt/node-saas-old/config']
+          volumeMounts:
+            - name: node-saas-home
+              mountPath: "/opt"
+            - name: node-saas-config
+              mountPath: "/opt/config"
+      {{- end }}
+
+
+      containers:
+        - name: node
+          image: "{{ .Values.node.image }}:{{ .Values.node.imageTag }}"
+          imagePullPolicy: {{ .Values.node.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.node.containerPort }}
+
+          env:
+          - name: NODE_SAAS_PORT
+            value: {{ .Values.node.containerPort | quote }}
+
+          - name: NODE_SAAS_BACKEND_URL
+          {{- if .Values.nginx.service.externalPort }}
+            value: http://{{ .Values.ingress.hosts.master }}.{{ $serverDomain }}:{{ .Values.nginx.service.externalPort }}
+          {{- else }}
+            value: http://{{ .Values.ingress.hosts.master }}.{{ $serverDomain }}
+          {{- end }}
+
+          - name: SYNC_SOURCE
+            value: {{ .Values.node.env.syncSource | quote }}
+
+          - name: NODE_SAAS_BRANCH
+            value: {{ .Values.node.env.nodeSaasBranch | quote }}
+
+          - name: VERBOSE
+            value: {{ .Values.node.env.verbose | quote }}
+
+          - name: FORCE_BUILD
+            value: {{ .Values.node.env.forceBuild | quote }}
+
+          - name: DEBUG
+            value: {{ .Values.node.env.debug | quote }}
+
+          resources:
+{{ toYaml .Values.node.resources | indent 12 }}
+          volumeMounts:
+            - name: node-saas-home
+              mountPath: "/opt"
+            - name: node-saas-git-sshkey
+              mountPath: "/var/ssh-config"
+
+
+      volumes:
+      {{- if .Values.persistence.volumes }}
+{{ toYaml .Values.persistence.volumes | indent 6 }}
+      {{- end }}
+      # node-saas config
+      - name: node-saas-config
+        configMap:
+          name: {{ .Release.Name }}-config
+
+      # git ssh-key
+      - name: node-saas-git-sshkey
+        secret:
+          secretName: git-sshkey-default
+
+      # node-saas source code
+      - name: node-saas-home
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default .Release.Name }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
+
+
+    {{- if .Values.imagePullSecrets }}
+
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+    {{- end }}
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}

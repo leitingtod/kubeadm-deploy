@@ -1,0 +1,52 @@
+{{- $serverDomain := .Values.ingress.domain | lower -}}
+{{- $externalPort := .Values.nginx.service.externalPort -}}
+1. 应用访问地址：
+{{- if .Values.ingress.enabled }}
+  {{- if .Values.nginx.service.externalPort }}
+   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.master }}.{{ $serverDomain }}:{{ $externalPort }}
+  {{- else }}
+   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $.Values.ingress.hosts.master }}.{{ $serverDomain }}
+  {{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "sdk.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get svc -w {{ template "sdk.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ template "sdk.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if contains "ClusterIP" .Values.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "sdk.name" . }},release={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl port-forward $POD_NAME 8080:80
+{{- end }}
+
+2. 添加域名至内网 DNS 服务器
+   dns.sh add {{ $serverDomain }}
+
+3. 添加 SSH 公钥到 git.qycloud.com.cn（若已添加，请忽略）
+   kubectl get secret git-sshkey-default -o json | jq -r ".data.ssh_publickey"
+
+4. 扩展工具访问地址：
+{{- if .Values.nginx.service.externalPort }}
+   xhprof            : http://{{ .Values.ingress.hosts.xhprof }}.{{ $serverDomain }}:{{$externalPort}}
+   phpMyAdmin        : http://{{ .Values.ingress.hosts.mysql }}.{{ $serverDomain }}:{{$externalPort}}
+   phpRedisAdmin     : http://{{ .Values.ingress.hosts.redis }}.{{ $serverDomain }}:{{$externalPort}}
+   mongoAdmin        : http://{{ .Values.ingress.hosts.redis }}.{{ $serverDomain }}:{{$externalPort}}
+ {{- if .Values.rabbitmq.enabled }}
+   rabbitmq manager  : http://{{ .Values.ingress.hosts.rabbitmq }}.{{ $serverDomain }}:{{$externalPort}} (user: {{ .Values.rabbitmq.env.user }} pass: {{ .Values.rabbitmq.env.pass }})
+ {{- else }}
+   beanstalk console : http://{{ .Values.ingress.hosts.beanstalk }}.{{ $serverDomain }}:{{$externalPort}}
+ {{- end }}
+{{- else }}
+   xhprof            : http://{{ .Values.ingress.hosts.xhprof }}.{{ $serverDomain }}
+   phpMyAdmin        : http://{{ .Values.ingress.hosts.mysql }}.{{ $serverDomain }}
+   phpRedisAdmin     : http://{{ .Values.ingress.hosts.redis }}.{{ $serverDomain }}
+   mongoAdmin        : http://{{ .Values.ingress.hosts.redis }}.{{ $serverDomain }}
+ {{- if .Values.rabbitmq.enabled }}
+   rabbitmq manager  : http://{{ .Values.ingress.hosts.rabbitmq }}.{{ $serverDomain }} (user: {{ .Values.rabbitmq.env.user }} pass: {{ .Values.rabbitmq.env.pass }})
+ {{- else }}
+   beanstalk console : http://{{ .Values.ingress.hosts.beanstalk }}.{{ $serverDomain }}
+ {{- end }}
+{{- end }}

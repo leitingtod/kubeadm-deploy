@@ -1,0 +1,749 @@
+{{- $phpFastCGIHost := printf "%s-%s" .Release.Name "php" -}}
+{{- $phpFastCGIPort := .Values.php.containerPort -}}
+
+{{- $nodeFastCGIHost := printf "%s-%s" .Release.Name "node" -}}
+{{- $nodeFastCGIPort := .Values.node.service.port -}}
+
+{{- $sdkFastCGIHost := printf "%s-%s" .Release.Name "sdk" -}}
+{{- $sdkFastCGIPort := .Values.sdk.service.port -}}
+
+{{- $externalPort := .Values.nginx.service.externalPort -}}
+{{- $rabbitmqHost := printf "%s-%s" .Release.Name "rabbitmq" -}}
+{{- $mongoHost := printf "%s-%s" .Release.Name "mongo" -}}
+
+{{- $serverDomain := .Values.ingress.domain | lower -}}
+
+{{- $masterServerName := .Values.ingress.hosts.master | lower -}}
+{{- $staticServerName := .Values.ingress.hosts.static | lower -}}
+{{- $fileioServerName := .Values.ingress.hosts.fileio | lower -}}
+{{- $nodesaasServerName := .Values.ingress.hosts.nodesaas | lower -}}
+
+{{- $xhprofServerName := .Values.ingress.hosts.xhprof | lower -}}
+{{- $mysqlConsoleServerName := .Values.ingress.hosts.mysql | lower -}}
+{{- $redisConsoleServerName := .Values.ingress.hosts.redis | lower -}}
+
+{{- $beanstalkConsoleServerName := .Values.ingress.hosts.beanstalk | lower -}}
+{{- $rabbitmqCtlServerName := .Values.ingress.hosts.rabbitmq | lower -}}
+{{- $mongoAdminServerName := .Values.ingress.hosts.mongo | lower -}}
+
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app: {{ .Release.Name }}-config
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  aysaas.conf: |-
+    server {
+      listen 80;
+
+      server_name {{ $masterServerName }}.{{$serverDomain}};
+
+      root /opt/saas/public;
+
+      # index index.html index.htm index.php;
+      location /global/svgweb/ {
+        break;
+      }
+
+
+      location /global/jquery/extend/uploadify/ {
+        break;
+      }
+
+      location /global/pdf2swf/ {
+        break;
+      }
+
+      location /form/render/ueditor/ {
+        break;
+      }
+
+      location /favicon.ico {
+        break;
+        access_log off;
+        log_not_found off;
+      }
+
+      location / {
+        rewrite . /index.php;
+      }
+
+      location ^~ /getway/ {
+        rewrite . /index.php;
+      }
+
+      location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+
+      location ^~/eai/project/ {
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-NginX-Proxy true;
+          proxy_pass http://{{ $sdkFastCGIHost }}:{{ $sdkFastCGIPort }}/gsproject-wan/;
+          proxy_redirect off;
+      }
+
+      location ^~/eai/project1/ {
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-NginX-Proxy true;
+          proxy_pass http://{{ $sdkFastCGIHost }}:{{ $sdkFastCGIPort }}/gsws/;
+          proxy_redirect off;
+      }
+    }
+
+    server {
+      listen 80;
+
+      server_name {{ $staticServerName }}.{{$serverDomain}};
+
+      root /opt/saas/public;
+
+      location / {
+        access_log off;
+      }
+
+      location ~ \.php$ {
+        deny all;
+      }
+
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
+        add_header Access-Control-Allow-Origin *;
+      }
+
+      location /form/render/ueditor/ {
+        rewrite ^/form/render/ueditor/(.*)$ /components/ueditor/$1 permanent;
+      }
+
+      location ^~/eai/project/ {
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-NginX-Proxy true;
+          proxy_pass http://{{ $sdkFastCGIHost }}:{{ $sdkFastCGIPort }}/gsproject-wan/;
+          proxy_redirect off;
+      }
+
+      location ^~/eai/project1/ {
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-NginX-Proxy true;
+          proxy_pass http://{{ $sdkFastCGIHost }}:{{ $sdkFastCGIPort }}/gsws/;
+          proxy_redirect off;
+      }
+    }
+
+    server {
+      listen 80;
+
+      server_name {{ $fileioServerName }}.{{$serverDomain}};
+      root /opt/saas/public;
+      client_max_body_size 128m;
+      location /crossdomain.xml {
+        break;
+      }
+
+      location / {
+        rewrite . /index.php ;
+      }
+
+      location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+
+      location ^~/eai/project/ {
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-NginX-Proxy true;
+          proxy_pass http://{{ $sdkFastCGIHost }}:{{ $sdkFastCGIPort }}/gsproject-wan/;
+          proxy_redirect off;
+      }
+
+      location ^~/eai/project1/ {
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-NginX-Proxy true;
+          proxy_pass http://{{ $sdkFastCGIHost }}:{{ $sdkFastCGIPort }}/gsws/;
+          proxy_redirect off;
+      }
+    }
+
+    server {
+      listen 80;
+
+      server_name {{ $staticServerName }}-portal.{{$serverDomain}};
+
+      root /opt/saas/public;
+
+      location / {
+        access_log off;
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization';
+
+        if ($request_method = 'OPTIONS') {
+            return 204;
+        }
+      }
+
+      location ~ \.php$ {
+        deny all;
+      }
+
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
+        add_header Access-Control-Allow-Origin *;
+      }
+
+      location /form/render/ueditor/ {
+        rewrite ^/form/render/ueditor/(.*)$ /components/ueditor/$1 permanent;
+      }
+    }
+
+    server {
+      listen 80;
+
+      server_name {{ $fileioServerName }}-portal.{{$serverDomain}};
+      root /opt/saas/public;
+      client_max_body_size 128m;
+      location /crossdomain.xml {
+        break;
+      }
+
+      location / {
+        rewrite . /index.php ;
+      }
+
+      location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+    }
+
+    server {
+      listen 80;
+
+      server_name {{ $xhprofServerName }}.{{$serverDomain}};
+      #auth_basic "[Tips]";
+      #auth_basic_user_file /etc/nginx/conf.d/[USER];
+      error_log /var/log/nginx/xhprof-error.log error;
+      access_log /var/log/nginx/xhprof-access.log combined;
+
+      root /opt/xhprof/xhprof/xhprof_html;
+
+      index index.php index.html;
+
+      location / {
+      }
+
+      location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+    }
+
+    server {
+      listen 80;
+
+      server_name {{ $beanstalkConsoleServerName }}.{{$serverDomain}};
+      #auth_basic "[Tips]";
+      #auth_basic_user_file /etc/nginx/conf.d/[USER];
+      error_log /var/log/nginx/beanstalk-console-error.log error;
+      access_log /var/log/nginx/beanstalk-console-access.log combined;
+
+      root /opt/beanstalk-console/public;
+
+      index index.php index.html;
+
+      location / {
+      }
+
+      location ~* \.(css)$ {
+        add_header Content-Type text/css;
+      }
+
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
+        add_header Access-Control-Allow-Origin *;
+      }
+
+      location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+    }
+
+    server {
+
+      server_name {{ $redisConsoleServerName }}.{{$serverDomain}};
+      #auth_basic "[Tips]";
+      #auth_basic_user_file /etc/nginx/conf.d/[USER];
+      error_log /var/log/nginx/beanstalk-console-error.log error;
+      access_log /var/log/nginx/beanstalk-console-access.log combined;
+
+      root /opt/redis-console;
+
+      index index.php index.html;
+
+      location / {
+      }
+
+      location ~* \.(css)$ {
+        add_header Content-Type text/css;
+      }
+
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
+        add_header Access-Control-Allow-Origin *;
+      }
+
+      location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+    }
+
+    server {
+      listen 80;
+
+      server_name {{ $mysqlConsoleServerName }}.{{$serverDomain}};
+      #auth_basic "[Tips]";
+      #auth_basic_user_file /etc/nginx/conf.d/[USER];
+      error_log /var/log/nginx/beanstalk-console-error.log error;
+      access_log /var/log/nginx/beanstalk-console-access.log combined;
+
+      root /opt/mysql-console;
+
+      index index.php index.html;
+
+      location / {
+      }
+
+      location ~* \.(css)$ {
+        add_header Content-Type text/css;
+      }
+
+      location ~* \.(eot|ttf|woff|css|png|ico|jpg|jpeg|gif)$ {
+        add_header Access-Control-Allow-Origin *;
+      }
+
+      location ~ \.php$ {
+      {{- if .Values.php.withNginx }}
+        fastcgi_pass   127.0.0.1:{{ $phpFastCGIPort }};
+      {{- else }}
+        fastcgi_pass   {{ $phpFastCGIHost }}:{{ $phpFastCGIPort }};
+      {{- end }}
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+      }
+
+      location ~ /\. {
+          deny  all;
+      }
+
+      location ~ /(libraries|templates) {
+          deny all;
+      }
+    }
+
+  {{- if .Values.rabbitmq.enabled }}
+    server {
+        listen 80;
+
+        server_name {{ $rabbitmqCtlServerName }}.{{$serverDomain}};
+
+        error_log /var/log/nginx/rabbitmq-management-error.log error;
+        access_log /var/log/nginx/rabbitmq-management-access.log combined;
+
+        location / {
+            proxy_set_header   Host   $host;
+            proxy_set_header   X-Real-IP  $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_pass      http://{{ $rabbitmqHost }}:15672;
+        }
+    }
+  {{- end }}
+    server {
+        listen 80;
+        listen 7777;
+
+        server_name {{ $mongoAdminServerName }}.{{$serverDomain}};
+
+        error_log /var/log/nginx/mongo-console-error.log error;
+        access_log /var/log/nginx/mongo-console-access.log combined;
+
+        location / {
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+            proxy_pass http://{{ $mongoHost }}:8081;
+        }
+    }
+  nginx.conf: |-
+    # For more information on configuration, see:
+    #   * Official English Documentation: http://nginx.org/en/docs/
+    #   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+    user  nginx;
+    worker_processes  8;
+
+    error_log  /var/log/nginx/error.log;
+    #error_log  /var/log/nginx/error.log  notice;
+    #error_log  /var/log/nginx/error.log  info;
+
+    pid        /run/nginx.pid;
+
+
+    events {
+        worker_connections  1024;
+    }
+
+
+    http {
+        include       /etc/nginx/mime.types;
+        include       /etc/nginx/sites-enabled/*;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile        on;
+        #tcp_nopush     on;
+
+        #keepalive_timeout  0;
+        keepalive_timeout  65;
+
+        gzip  on;
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_buffers 16 8k;
+        gzip_http_version 1.1;
+        gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript;
+        client_max_body_size 200M;
+        server_names_hash_max_size 1024;
+        server_names_hash_bucket_size 512;
+        fastcgi_buffers 8 128k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+        client_header_buffer_size 256k;
+        large_client_header_buffers 4 256k;
+
+        # Load modular configuration files from the /etc/nginx/conf.d directory.
+        # See http://nginx.org/en/docs/ngx_core_module.html#include
+        # for more information.
+        include /etc/nginx/conf.d/*.conf;
+
+        index   index.html index.htm;
+
+        server {
+            listen       80;
+            server_name  localhost;
+            root         /usr/share/nginx/html;
+
+            #charset koi8-r;
+
+            #access_log  /var/log/nginx/host.access.log  main;
+
+            location / {
+            }
+
+            # redirect server error pages to the static page /40x.html
+            #
+            error_page  404              /404.html;
+            location = /40x.html {
+            }
+
+            # redirect server error pages to the static page /50x.html
+            #
+            error_page   500 502 503 504  /50x.html;
+            location = /50x.html {
+            }
+
+            # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+            #
+            #location ~ \.php$ {
+            #    proxy_pass   http://127.0.0.1;
+            #}
+
+            # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+            #
+            #location ~ \.php$ {
+            #    root           html;
+            #    fastcgi_pass   127.0.0.1:9000;
+            #    fastcgi_index  index.php;
+            #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+            #    include        fastcgi_params;
+            #}
+
+            # deny access to .htaccess files, if Apache's document root
+            # concurs with nginx's one
+            #
+            #location ~ /\.ht {
+            #    deny  all;
+            #}
+        }
+
+
+        # another virtual host using mix of IP-, name-, and port-based configuration
+        #
+        #server {
+        #    listen       8000;
+        #    listen       somename:8080;
+        #    server_name  somename  alias  another.alias;
+        #    root         html;
+
+        #    location / {
+        #    }
+        #}
+
+
+        # HTTPS server
+        #
+        #server {
+        #    listen       443;
+        #    server_name  localhost;
+        #    root         html;
+
+        #    ssl                  on;
+        #    ssl_certificate      cert.pem;
+        #    ssl_certificate_key  cert.key;
+
+        #    ssl_session_timeout  5m;
+
+        #    ssl_protocols  SSLv2 SSLv3 TLSv1;
+        #    ssl_ciphers  HIGH:!aNULL:!MD5;
+        #    ssl_prefer_server_ciphers   on;
+
+        #    location / {
+        #    }
+        #}
+    }
+  development.js: |-
+    'use strict';
+
+    module.exports = {
+        port: {{ $nodeFastCGIPort }},
+  {{- if .Values.nginx.service.externalPort }}
+        api: 'http://{{ $masterServerName }}.{{$serverDomain}}:{{$externalPort}}/',
+        static: 'http://{{ $nodesaasServerName }}.{{$serverDomain}}:{{$externalPort}}',
+        fileio: 'http://{{ $fileioServerName }}.{{$serverDomain}}:{{$externalPort}}',
+  {{- else }}
+        api: 'http://{{ $masterServerName }}.{{$serverDomain}}/',
+        static: 'http://{{ $nodesaasServerName }}.{{$serverDomain}}',
+        fileio: 'http://{{ $fileioServerName }}.{{$serverDomain}}',
+  {{- end }}
+
+        logger: {
+            filename: 'log/node-saas.log'
+        }
+    };
+  database.php: |-
+    <?php
+    return [
+        // 数据库连接取第一个key下配置
+        'servers' => [
+          'default' => [
+            'name' => 'localhost',
+            'host' => '{{ .Release.Name }}-mysql',
+            'port' => {{ .Values.mysql.service.port }},
+            'dbname' => '{{ .Values.php.env.mysql.dbname }}',
+            'user' => '{{ .Values.php.env.mysql.user }}',
+            'password' => '{{ .Values.php.env.mysql.pass }}'
+          ],
+          'mongodb' => [
+            'name'     => 'localhost',
+            'host'     => '{{ .Release.Name }}-mongo',
+            'port'     => {{ .Values.mongo.service.port }},
+            'dbname'   => '{{ .Values.php.env.mongo.default.dbname }}',
+            'user'     => '{{ .Values.php.env.mongo.default.user }}',
+            'replicaSet' => '',
+            'password' => '{{ .Values.php.env.mongo.default.pass }}'
+          ],
+          'opensearch' => [
+            'name' => 'localhost',
+            'host' => 'localhost',
+            'port' => 3306,
+            'dbname' => 'opensearch',
+            'user' => 'root',
+            'password' => '123456'
+          ],
+          'iot' => array(
+            'name'     => 'localhost',
+            'host'     => 'localhost',
+            'port'     => 3306,
+            'dbname'   => 'anyun_master_copy1',
+            'user'     => 'root',
+            'password' => '123456'
+          ),
+          'oracle' => [
+            'name'     => '192.168.0.63',
+            'host'     => '192.168.0.63',
+            'port'     => 1521,
+            'dbname'   => 'dgzhaj',
+            'user'     => 'system',
+            'password' => 'zhang1234'
+          ],
+        ],
+        'charset' => 'utf8',
+        'default' => 'default', //默认数据库
+        'iot' => 'iot',
+        'master_slave_enable' => false, //主从模式
+        'table_preg' => "/`?(ent_\w+|sys_\w+)[`?|\s?]/iU", // 考虑没有加``符号的sql
+        'model_path' => MODPATH . 'dao',    //orm dao文件目录
+        'sqlAnalysis' => false,
+    ];
+  gsproj-config: |-
+    sdk.db_driver=com.mysql.jdbc.Driver
+    sdk.db_server={{ .Release.Name }}-mysql
+    sdk.db_port={{ .Values.mysql.service.port }}
+    sdk.db_name={{ .Values.php.env.mysql.dbname }}
+    sdk.db_user={{ .Values.php.env.mysql.user }}
+    sdk.db_password={{ .Values.php.env.mysql.pass }}
+    sdk.db_unicode=true
+    sdk.db_encoding=UTF-8
+    sdk.db_type=mysql
+    sdk.validationQuery=SELECT 1
+
+    #redis相关配置
+    redis.host={{ .Release.Name }}-redis
+    redis.port={{ .Values.redis.service.port }}
+    redis.pass=
+    redis.maxTotal=100
+    redis.maxIdle=30
+    redis.timeBetweenEvictionRunsMillis=30000
+    redis.minEvictableIdleTimeMillis=1800000
+    redis.softMinEvictableIdleTimeMillis=1800000
+    redis.maxWaitMillis=1500
+    redis.testOnBorrow=true
+    redis.testWhileIdle=false
+    redis.testOnReturn=false
+    redis.blockWhenExhausted=false
+  gsproj-sysconfig: |-
+    sys_name=\u7518\u8083\u7701\u5B89\u5168\u751F\u4EA7\u76D1\u7763\u7BA1\u7406\u5C40\u4FE1\u606F\u5316\u5E73\u53F0
+    root_domain={{ $serverDomain }}
+    mode=0
+  {{- if .Values.nginx.service.externalPort }}
+    www_domain={{ $masterServerName }}.{{$serverDomain}}:{{ $externalPort }}
+    static_domain={{ $staticServerName }}.{{$serverDomain}}:{{ $externalPort }}
+    fileio_domain={{ $fileioServerName }}.{{$serverDomain}}:{{ $externalPort }}
+  {{- else }}
+    www_domain={{ $masterServerName }}.{{$serverDomain}}:80
+    static_domain={{ $staticServerName }}.{{$serverDomain}}:80
+    fileio_domain={{ $fileioServerName }}.{{$serverDomain}}:80
+  {{- end}}
+    application_name={{ .Release.Name }}
+    proxy_dir = /eai/project/
+    webroot_directory=\\usr\\share\\tomcat7\\webapps\\gsproject-wan\\
+    webprotocol=http\://
+    is_custom_home=0
+    home_url=user/workbench?nakedLayout\=1
+
+    skin=skin/SDK4/index.jsp
+    skinEnt=main/web_qiye/index.jsp
+    skinOther=skin/SDK4/otherIndex.jsp
+
+    sys_ent_id=GanSuShengAnQuanShen
+    tab_sys_ent_id=ent_gansushenganquanshen
+
+    smsUrl=172.31.1.105
+    smsUserName=DEF001
+    smsUserPwd=123456@
+  gsws-config: |-
+    #==================================
+    # sql for normal
+    #==================================
+    #database username
+    db_username={{ .Values.php.env.mysql.user }}
+    #database password
+    db_password={{ .Values.php.env.mysql.pass }}
+    #database server name
+    db_name={{ .Values.php.env.mysql.dbname }}
+    #datatable for point
+    tb_name=tb_gismap
+    #datatable for contrast info
+    tb_ctrt_name=tb_contrast
+    #database type
+    db_type=mysql
+    #database server ip
+    ip={{ .Release.Name }}-mysql
+    #database server port
+    port={{ .Values.mysql.service.port }}
+
+    #===================================
+    #sql for plot
+    #===================================
+    #db user name
+    concert_username=gsaqscgl
+    concert_password=WT389wtp6cy7kxL7
+    concert_db_name=ayjava_huangdao_ent_gisTest
+    concert_tb_name=TB_GIS_CONCERTPLOT
+    plot_tb_name=TB_GIS_CONCERTPLOT_PLOT
+    style_tb_name=TB_GIS_CONCERTPLOT_PLYSTYLE
+    concert_type=sqlserver
+    concert_ip=10.0.0.50
+    concert_port=1435
+
+    #===================================
+    #sql for gis
+    #===================================
+
+    #arcgis server username
+    ags_user=zj
+    #arcgis server password
+    ags_password=0.
+    #arcgis server user domain
+    ags_domain=zj
+    #arcgis server host address
+    ags_host=localhost
+    #arcgis server feature service name
+    ags_servicename=map
+
+
+

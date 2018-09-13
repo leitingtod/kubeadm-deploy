@@ -1,0 +1,295 @@
+{{- $serverDomain := .Values.ingress.domain | lower -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-php
+  labels:
+    app: {{ .Release.Name }}-php
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.php.service.type }}
+  ports:
+    - name: php-fastcgi
+      port: {{ .Values.php.containerPort }}
+      targetPort: {{ .Values.php.containerPort }}
+
+    - name: nginx-http
+      port: {{ .Values.nginx.containerPort }}
+      targetPort: {{ .Values.nginx.containerPort }}
+
+  selector:
+    app: {{ .Release.Name }}-php
+    release: {{ .Release.Name }}
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-php
+  labels:
+    app: {{ .Release.Name }}-php
+    chart: {{ template "sdk.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.php.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-php
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-php
+        release: {{ .Release.Name }}
+    spec:
+    {{- if not .Values.nginx.service.externalPort }}
+      hostAliases:
+      - ip: "192.168.0.226"
+        hostnames:
+      {{- range .Values.ingress.hosts }}
+          - {{ . }}.{{ $serverDomain }}
+      {{- end }}
+          - {{ .Values.ingress.hosts.fileio }}-portal.{{ $serverDomain }}
+          - {{ .Values.ingress.hosts.static }}-portal.{{ $serverDomain }}
+    {{- end }}
+
+      initContainers:
+      {{- if not .Values.persistence.sourceReady }}
+        - name: dev-tools
+          image: "{{ .Values.source.devTools.image }}:{{ .Values.source.devTools.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /qycloud/* /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+        - name: saas-config
+          image: "{{ .Values.source.devTools.image }}:{{ .Values.source.devTools.imageTag }}"
+          imagePullPolicy: {{ .Values.source.pullPolicy }}
+          command: ['sh', '-c', 'cp -r /var/saas-config /opt']
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+            - name: config
+              mountPath: "/var/saas-config"
+      {{- end }}
+
+      {{- if .Values.rabbitmq.enabled }}
+
+        - name: init-rabbitmq
+          image: dockerhub.aysaas.com/library/busybox:latest
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-rabbitmq; do echo waiting for rabbitmq; sleep 2; done;']
+      {{- else }}
+
+        - name: init-beanstalkd
+          image: dockerhub.aysaas.com/library/busybox:latest
+
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-beanstalkd; do echo waiting for beanstalkd; sleep 2; done;']
+      {{- end }}
+
+        - name: init-mongo
+          image: dockerhub.aysaas.com/library/busybox:latest
+
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-mongo; do echo waiting for mongo; sleep 2; done;']
+
+        - name: init-mysql
+          image: dockerhub.aysaas.com/library/busybox:latest
+
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-mysql; do echo waiting for mysql; sleep 2; done;']
+
+        - name: init-redis
+          image: dockerhub.aysaas.com/library/busybox:latest
+
+          command: ['sh', '-c', 'until nslookup {{ .Release.Name }}-redis; do echo waiting for redis; sleep 2; done;']
+
+
+      containers:
+      {{- if .Values.php.withNginx }}
+        - name: nginx
+          image: "{{ .Values.nginx.image }}:{{ .Values.nginx.imageTag }}"
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.nginx.containerPort }}
+            name: nginx-http
+
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+
+            - name: config
+              mountPath: "/etc/nginx/nginx.conf"
+              subPath: "nginx.conf"
+
+            - name: config
+              mountPath: "/etc/nginx/conf.d/aysaas.conf"
+              subPath: "aysaas.conf"
+      {{- end }}
+
+        - name: php
+          image: "{{ .Values.php.image }}:{{ .Values.php.imageTag }}"
+          imagePullPolicy: {{ .Values.php.pullPolicy }}
+
+          ports:
+          - containerPort: {{ .Values.php.containerPort }}
+            name: php-fastcgi
+
+          env:
+          - name: APP_NAME
+            value: {{ .Release.Name }}
+
+          - name: SERVER_DOMAIN
+            value: {{ .Values.ingress.domain }}
+
+          - name: SERVER_PORT
+          {{- if not .Values.nginx.service.externalPort }}
+            value: "80"
+          {{- else }}
+            value: {{ .Values.nginx.service.externalPort | quote }}
+          {{- end}}
+
+          - name: SHOW_CONFIG
+            value: {{ .Values.sdk.env.showConfig | quote }}
+
+          # backend host
+          - name: MONGO_HOST
+            value: {{ .Release.Name }}-mongo
+          - name: MYSQL_HOST
+            value: {{ .Release.Name }}-mysql
+          - name: REDIS_HOST
+            value: {{ .Release.Name }}-redis
+
+          - name: QUEUE_HOST
+          {{- if .Values.rabbitmq.enabled }}
+            value: {{ .Release.Name }}-rabbitmq
+          {{- else }}
+            value: {{ .Release.Name }}-beanstalkd
+          {{- end}}
+
+          - name: QUEUE_TYPE
+          {{- if .Values.rabbitmq.enabled }}
+            value: "rabbitmq"
+          {{- else }}
+            value: "beanstalk"
+          {{- end}}
+
+          # mongo config
+          - name: MONGO_DEFAULT_DBNAME
+            value: {{ .Values.php.env.mongo.default.dbname | quote }}
+          - name: MONGO_DEFAULT_USER
+            value: {{ .Values.php.env.mongo.default.user | quote }}
+          - name: MONGO_DEFAULT_PASS
+            value: {{ .Values.php.env.mongo.default.pass | quote }}
+
+          - name: MONGO_APPSTORE_DBNAME
+            value: {{ .Values.php.env.mongo.appstore.dbname | quote }}
+          - name: MONGO_APPSTORE_USER
+            value: {{ .Values.php.env.mongo.appstore.user | quote }}
+          - name: MONGO_APPSTORE_PASS
+            value: {{ .Values.php.env.mongo.appstore.pass | quote }}
+
+          - name: MONGO_PORTAL_DBNAME
+            value: {{ .Values.php.env.mongo.portal.dbname | quote }}
+          - name: MONGO_PORTAL_USER
+            value: {{ .Values.php.env.mongo.portal.user | quote }}
+          - name: MONGO_PORTAL_PASS
+            value: {{ .Values.php.env.mongo.portal.pass | quote }}
+
+          # mysql config
+          - name: MYSQL_APP_DBNAME
+            value: {{ .Values.php.env.mysql.dbname | quote }}
+          - name: MYSQL_APP_USER
+            value: {{ .Values.php.env.mysql.user | quote }}
+          - name: MYSQL_APP_PASS
+            value: {{ .Values.php.env.mysql.pass | quote }}
+
+          # rabbitmq management config
+          - name: RABBITMQ_DEFAULT_USER
+            value: {{ .Values.rabbitmq.env.user | quote }}
+          - name: RABBITMQ_DEFAULT_PASS
+            value: {{ .Values.rabbitmq.env.pass | quote }}
+
+          # source code config
+          - name: SYNC_SOURCE
+            value: {{ .Values.php.env.syncSource | quote }}
+          - name: SAAS_BRANCH
+            value: {{ .Values.php.env.saasBranch | quote }}
+          - name: ORG_BRANCH
+            value: {{ .Values.php.env.orgBranch | quote }}
+          - name: NODE_SAAS_BRANCH
+            value: {{ .Values.php.env.nodeSaasBranch | quote }}
+
+          - name: VERBOSE
+            value: {{ .Values.php.env.verbose | quote }}
+          - name: FORCE_BUILD
+            value: {{ .Values.php.env.forceBuild | quote }}
+          - name: DEBUG
+            value: {{ .Values.php.env.debug | quote }}
+
+          # phpRedisAdmin config
+          - name: REDIS_1_HOST
+            value: {{ .Release.Name }}-redis
+
+          # phpMysqlAdmin config
+          - name: PMA_HOSTS
+            value: {{ .Release.Name }}-mysql
+          - name: PMA_USER
+            value: {{ .Values.php.env.mysql.user | quote }}
+          - name: PMA_PASSWORD
+            value: {{ .Values.php.env.mysql.pass | quote }}
+
+          resources:
+{{ toYaml .Values.php.resources | indent 12 }}
+          volumeMounts:
+            - name: home
+              mountPath: "/opt"
+            - name: git-sshkey
+              mountPath: "/var/ssh-config"
+
+      volumes:
+      {{- if .Values.persistence.volumes }}
+{{ toYaml .Values.persistence.volumes | indent 6 }}
+      {{- end }}
+      # git ssh-key
+      - name: git-sshkey
+        secret:
+          secretName: git-sshkey-default
+
+      # nginx config
+      - name: config
+        configMap:
+          name: {{ .Release.Name }}-config
+
+      # saas source code
+      - name: home
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default printf "%s-%s" .Release.Name "saas" }}
+      {{- else }}
+        emptyDir: {}
+      {{ end }}
+
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+    {{- end }}
+
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
