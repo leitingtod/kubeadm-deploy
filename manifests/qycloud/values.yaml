@@ -66,7 +66,7 @@ php:
       memory: "256Mi"
     limits:
       cpu: "500m"
-      memory: "1256Mi"
+      memory: "2048Mi"
 
 
 node:
@@ -92,7 +92,7 @@ node:
       memory: "256Mi"
     limits:
       cpu: "500m"
-      memory: "1000Mi"
+      memory: "2048Mi"
 
 
 source:
@@ -200,7 +200,7 @@ mysql:
       memory: "500Mi"
     limits:
       cpu: "1000m"
-      memory: "1256Mi"
+      memory: "2048Mi"
 
 
 redis:
