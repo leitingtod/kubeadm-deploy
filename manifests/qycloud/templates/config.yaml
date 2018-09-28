@@ -70,6 +70,10 @@ data:
         rewrite . /index.php;
       }
 
+      location /webservices/ {
+        rewrite . /services.php;
+      }
+
       location ^~ /getway/ {
         rewrite . /index.php;
       }
