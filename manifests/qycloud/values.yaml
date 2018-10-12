@@ -47,6 +47,8 @@ php:
     mysqlAppDBName: master
     mysqlAppUser: master
     mysqlAppPass: pZdxysqJX4bK4VrB
+    # if not set, use 3306 by default
+    #mysqlPort: 3306
 
     snycSource: false
     saasBranch: master

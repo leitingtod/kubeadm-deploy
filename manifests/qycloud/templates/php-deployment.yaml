@@ -152,6 +152,8 @@ spec:
             value: {{ .Release.Name }}-mongo
           - name: MYSQL_HOST
             value: {{ .Release.Name }}-mysql
+          - name: MYSQL_PORT
+            value: {{ .Values.php.env.mysqlPort | default 3306 | quote }}
           - name: REDIS_HOST
             value: {{ .Release.Name }}-redis
 
@@ -236,6 +238,8 @@ spec:
           # phpMysqlAdmin config
           - name: PMA_HOSTS
             value: {{ .Release.Name }}-mysql
+          - name: PMA_PORTS
+            value: {{ .Values.php.env.mysqlPort | default 3306 | quote }}
           - name: PMA_USER
             value: {{ .Values.php.env.mysqlAppUser | quote }}
           - name: PMA_PASSWORD
