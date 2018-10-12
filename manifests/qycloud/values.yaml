@@ -47,6 +47,8 @@ php:
     mysqlAppDBName: master
     mysqlAppUser: master
     mysqlAppPass: pZdxysqJX4bK4VrB
+    # if not set, use 3306 by default
+    #mysqlPort: 3306
 
     snycSource: false
     saasBranch: master
@@ -233,6 +235,16 @@ persistence:
   size: 8Gi
   storageClass: "aysaas-nfs"
 
+  mysql:
+    enabled: true
+    # If defined, PVC must be created manually before volume will be bound
+    # existingClaim: "saas-saas"
+    #  volumes:
+    #    - name: saas-home
+    #      emptyDir: {}
+    accessMode: ReadWriteMany
+    size: 5Gi
+    storageClass: "aysaas-nfs"
 
 ingress:
   enabled: true

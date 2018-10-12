@@ -38,6 +38,16 @@ spec:
         app: {{ .Release.Name }}-mysql
         release: {{ .Release.Name }}
     spec:
+    {{- if .Values.persistence.mysql.enabled }}
+      initContainers:
+        - name: mysqldata
+          image: "{{ .Values.mysql.image }}:{{ .Values.mysql.imageTag }}"
+          imagePullPolicy: {{ .Values.mysql.pullPolicy }}
+          command: ['sh', '-c', '[ ! -d /opt/mysql ] && cp -a /var/lib/mysql/. /opt/']
+          volumeMounts:
+            - name: data
+              mountPath: "/opt"
+    {{- end }}
       containers:
         - name: mysql
           image: "{{ .Values.mysql.image }}:{{ .Values.mysql.imageTag }}"
@@ -48,6 +58,22 @@ spec:
 
           resources:
 {{ toYaml .Values.mysql.resources | indent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: "/var/lib/mysql"
+
+      volumes:
+      {{- if .Values.persistence.mysql.volumes }}
+{{ toYaml .Values.persistence.mysql.volumes | indent 6 }}
+      {{- end }}
+      - name: data
+      {{- if .Values.persistence.mysql.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.mysql.existingClaim | default (printf "%s-%s" .Release.Name "mysql") }}
+      {{- else }}
+        emptyDir: {}
+      {{ end }}
+
 
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
