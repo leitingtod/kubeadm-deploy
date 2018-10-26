@@ -74,7 +74,7 @@ php:
 node:
   replicaCount: 1
   image: "dockerhub.aysaas.com/library/aysaas/node"
-  imageTag: "8.11.1-slim-2.5.3"
+  imageTag: "8.12.0-slim-2.5.3"
   pullPolicy: Always
   containerPort: 5000
   env:
