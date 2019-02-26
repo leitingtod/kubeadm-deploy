@@ -1,0 +1,14 @@
+- name: Restart | Restart host
+  become: yes
+  command: /sbin/shutdown -r +1
+  async: 1
+  poll: 0
+  ignore_errors: true
+  tags: reboot
+
+
+- name: Restart | Wait 300 seconds, but only start checking after 60 seconds
+  wait_for_connection:
+    delay: 60
+    sleep: 10
+  tags: reboot

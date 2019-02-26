@@ -1,28 +1,31 @@
-- name: Hostname | Set hostname
+- name: Init | Config /etc/cloud/cloud.cfg
+  become: yes
+  lineinfile:
+    dest: /etc/cloud/cloud.cfg
+    regexp: '^.*preserve_hostname.*$'
+    line: 'preserve_hostname: true'
+    state: present
+  tags: config-hosts
+
+
+- name: Init | Config hostname
   become: yes
   hostname:
     name: "{{ NODE_NAME }}"
-  tags: hostnmae, set-hostname
+  tags: config-hosts
 
-- name: Hosts | Add hostname to /etc/hosts
+
+- name: Init | Add hostname to /etc/hosts
   become: yes
   lineinfile:
     dest: /etc/hosts
     regexp: '^127\.0\.0\.1[ \t]+localhost'
     line: '127.0.0.1 localhost {{ NODE_NAME }}'
     state: present
-  tags: hostname, set-hostname
+  tags: config-hosts
 
-- name: Hosts | Add dockerhub to /etc/hosts
-  become: yes
-  lineinfile:
-    dest: /etc/hosts
-    regexp: '^192\.168\.0\.228[ \t]+localhost'
-    line: '192.168.0.228 dockerhub.aysaas.com'
-    state: present
-  tags: hosts, set-dockerhub-host
 
-- name: Hosts | Add cluster node to /etc/hosts
+- name: Init | Add cluster node to /etc/hosts
   become: yes
   blockinfile:
     dest: /etc/hosts
@@ -34,17 +37,19 @@
     create: yes
     backup: yes
     marker: "# Ansible Inventory Hosts {mark}"
-  tags: hosts, set-k8s-cluster-hosts
+  tags: config-hosts
 
-- name: Status | Check /etc/hosts
+
+- name: Init | Check /etc/hosts
   become: yes
   shell: cat /etc/hosts
   register: shell_result
-  tags: hosts, get-hosts
+  tags: check-hosts
 
-- name: Status | Check hostname
+
+- name: Init | Check hostname
   debug:
     var: shell_result.stdout_lines
-  tags: hosts, get-hosts
+  tags: check-hosts
 
 
