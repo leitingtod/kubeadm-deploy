@@ -1,4 +1,19 @@
-- name: Install | Install docker-ce
+- name: Docker | Add docker apt-repository
+  become: yes
+  lineinfile:
+    dest: /etc/apt/sources.list
+    regexp: '^.*docker-ce.*$'
+    line: "deb http://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+
+- name: Docker | Apt-get update
+  become: yes
+  apt:
+    update_cache: yes
+
+
+- name: Docker | Install docker-ce
   become: yes
   ignore_errors: True
   apt:
@@ -6,33 +21,43 @@
     state: present
     allow_unauthenticated: yes
 
-- name: Config | Prepare /etc/docker
+
+- name: Docker | Prepare directory /etc/docker
   become: yes
   file: name={{ item }} state=directory
   with_items:
-  - /etc/docker
+    - /etc/docker
 
-- name: Config | Add docker registry
+
+- name: Docker | Config docker daemon.json
   become: yes
   copy: src=daemon.json dest=/etc/docker/daemon.json mode=0644
+  tags: config-docker
 
-- name: Restart | Restart docker
+
+- name: Docker | Restart docker
   become: yes
   shell: systemctl daemon-reload && systemctl enable docker && systemctl restart docker
+  tags: config-docker
 
-- name: Status | Check docker status
+
+- name: Docker | Check docker status
   become: yes
   ignore_errors: True
   shell: systemctl status docker
   register: shell_result
-  tags: docker-status
+  tags: check-docker
 
-- name: Status | Check docker status
+
+- name: Docker | Check docker status
   debug:
     var: shell_result.stdout_lines
-  tags: docker-status
+  tags: check-docker
 
-- name: Login | Login Harbor Docker Registry
+
+- name: Docker | Login Harbor Docker Registry
   become: yes
-  shell: docker login dockerhub.aysaas.com -u pull -p pull123Q
+  shell: docker login private_docker_hub -u pull -p pull123Q
+  when:
+    - private_docker_hub != ""
   tags: docker-login
