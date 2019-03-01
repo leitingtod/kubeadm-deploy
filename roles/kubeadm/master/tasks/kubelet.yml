@@ -2,12 +2,14 @@
   become: yes
   shell: systemctl daemon-reload && systemctl restart kubelet
 
+
 - name: Kerbernetes | Get kubelet status
   become: yes
   ignore_errors: True
   shell: systemctl status kubelet
   register: shell_result
   tags: check-kubelet-status
+
 
 - name: Kerbernetes | Cat kubelet status
   debug:
