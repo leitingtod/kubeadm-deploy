@@ -86,6 +86,9 @@
 - name: Kerbernetes | Prepare kubeadm.conf
   become: yes
   copy: src=kubeadm.conf dest=/root/kubeadm.conf mode=0644
+  tags: config-kubeadm
+  when:
+    - inventory_hostname in groups['kube-master']
 
 
 #- name: Kerbernetes | Prepare flannel.conf
