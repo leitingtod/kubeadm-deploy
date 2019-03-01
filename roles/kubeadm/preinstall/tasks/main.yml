@@ -1,11 +1,42 @@
-- name: Kerbernetes | Install kubeadm kubectl kubelet
+- name: Kerbernetes | Add Kerbernetes apt-repository
+  become: yes
+  lineinfile:
+    dest: /etc/apt/sources.list
+    regexp: '^.*kubernetes.*$'
+    line: "{{ kubernetes_apt_repository }}"
+    state: present
+  tags: config-kube-repo
+
+
+- name: Kerbernetes | Apt-get update
+  become: yes
+  apt:
+    update_cache: yes
+
+
+- name: Kerbernetes | Install latest kubeadm kubectl kubelet
   become: yes
   apt: name={{ item }} state=present update_cache=yes
   with_items:
-  - kubeadm=1.10.3-00
-  - kubectl=1.10.3-00
-  - kubelet=1.10.3-00
-  - kubernetes-cni=0.6.0-00
+    - "kubeadm"
+    - "kubectl"
+    - "kubelet"
+    - "kubernetes-cni"
+  when:
+    - kubernetes_release == ""
+
+
+- name: Kerbernetes | Install kubeadm kubectl kubelet by version
+  become: yes
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - "kubeadm-{{ kubernetes_release }}-00"
+    - "kubectl-{{ kubernetes_release }}-00"
+    - "kubelet-{{ kubernetes_release }}-00"
+    - "kubernetes-cni-{{ kubernetes_cni_release }}-00"
+  when:
+    - kubernetes_release != ""
+
 
 - name: Kerbernetes | Config kubelet pod-infra-container-image
   become: yes
@@ -15,21 +46,16 @@
     state: absent
   tags: config-kubelet
 
+
 - name: Kerbernetes | Config kubelet pod-infra-container-image
   become: yes
   lineinfile:
     dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     insertbefore: '^ExecStart=$'
-    line: 'Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1 --system-reserved=cpu=200m,memory=250Mi --kube-reserved=cpu=200m,memory=250Mi --eviction-hard=memory.available<20%,nodefs.available<5%,imagefs.available<5%"'
+    line: 'Environment="KUBELET_EXTRA_ARGS={{ system_reserved }} {{ kube_reserved }} {{ eviction_hard }}"'
     state: present
   tags: config-kubelet
 
-- name: Kerbernetes | Install nfs-clinet for nsf-storage
-  become: yes
-  apt: name={{ item }} state=present
-  with_items:
-  - nfs-common
-  tags: install-nfs
 
 - name: Kerbernetes | Disable Swap - /etc/fstab
   become: yes
@@ -38,7 +64,8 @@
     regexp: '(^[^#].*swap.*sw.*$)'
     replace: '# \1'
     backup: yes
-  tags: fstab
+  tags: config-swap
+
 
 - name: Kerbernetes | Disable Swap - /etc/sysctl.d/k8s.conf
   become: yes
@@ -47,22 +74,32 @@
     line: 'vm.swappiness=0'
     create: yes
     state: present
-  tags: k8s-conf
+  tags: config-swap
+
 
 - name: Kerbernetes | Disable Swap - sysctl
   become: yes
   shell: sysctl -p /etc/sysctl.d/k8s.conf && swapoff -a
-  tags: swapoff
+  tags: config-swap
+
 
 - name: Kerbernetes | Prepare kubeadm.conf
   become: yes
   copy: src=kubeadm.conf dest=/root/kubeadm.conf mode=0644
-  tags: kubeadmconf
 
-- name: Kerbernetes | Prepare flannel.conf
-  become: yes
-  copy: src=kube-flannel.yml dest=$HOME/kube-flannel.yml mode=0644
-  tags: flannel-yaml
+
+#- name: Kerbernetes | Prepare flannel.conf
+#  become: yes
+#  copy: src=kube-flannel.yml dest=$HOME/kube-flannel.yml mode=0644
+
+
+#- name: Kerbernetes | Install nfs-clinet for nsf-storage
+#  become: yes
+#  apt: name={{ item }} state=present
+#  with_items:
+#    - nfs-common
+#  tags: install-nfs
+
 
 #- name: Kerbernetes | iptables settings
 #  become: yes
