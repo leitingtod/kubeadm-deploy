@@ -40,14 +40,14 @@
   tags: config-hosts
 
 
-- name: Init | Check /etc/hosts
+- name: Init | Get /etc/hosts
   become: yes
   shell: cat /etc/hosts
   register: shell_result
   tags: check-hosts
 
 
-- name: Init | Check hostname
+- name: Init | Cat /etc/hosts
   debug:
     var: shell_result.stdout_lines
   tags: check-hosts

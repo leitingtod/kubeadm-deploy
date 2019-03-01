@@ -1,15 +1,17 @@
-- name: kubeadm init
+- name: Kerbernetes | Exec kubeadm init
   become: yes
   shell: kubeadm reset && kubeadm init --config /root/kubeadm.conf
   register: shell_result
   async: 45
   poll: 5
 
-- name: kubeadm init
+
+- name: Kerbernetes | Cat kubeadm init
   debug:
     var: shell_result.stdout_lines
 
-- name: set kubeadm_join var
+
+- name: Kerbernetes | Save kubeadm_join string
   replace:
     dest: roles/kubeadm/node/defaults/main.yml
     regexp: '^kubeadm_join:.*$'
@@ -18,13 +20,16 @@
   ignore_errors: True
   tags: set-kubeadm-join
 
-- name: kubectl config
+
+- name: Kerbernetes | Do kubectl config
   become: yes
   shell: mkdir -p $HOME/.kube && sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
+
 - include_tasks: kubelet.yml
 
-- name: Installing a pod network with Flannel
+
+- name: Kerbernetes | Install a pod network with Flannel
   become: yes
   shell: kubectl apply -f $HOME/kube-flannel.yml
   tags: flannel

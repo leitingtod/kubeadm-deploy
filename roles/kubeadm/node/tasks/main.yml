@@ -1,12 +1,14 @@
-- name: kubeadm join
+- name: Kerbernetes | kubeadm join
   become: yes
   shell: "{{ kubeadm_join }}"
   register: shell_result
   async: 45
   poll: 5
 
-- name: kubeadm join
+
+- name: Kerbernetes | kubeadm join
   debug:
     var: shell_result.stdout_lines
+
 
 - include_tasks: roles/kubeadm/master/tasks/kubelet.yml
